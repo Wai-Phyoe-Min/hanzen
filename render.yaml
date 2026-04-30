@@ -8,7 +8,7 @@ services:
       pip install -r requirements.txt
       python manage.py collectstatic --noinput
       python manage.py migrate
-    startCommand: gunicorn hanzen.wsgi:application --log-file -
+    startCommand: cd /opt/render/project/src && gunicorn hanzen.wsgi:application --log-file -
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
@@ -17,5 +17,5 @@ services:
       - key: DJANGO_DEBUG
         value: false
       - key: WEB_CONCURRENCY
-        value: 4
-    autoDeploy: true                       
+        value: 1
+    autoDeploy: true
