@@ -10,6 +10,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'hanzen-secret-key-change-in-productio
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
+    'hanzen-1.onrender.com',
     'hanzen.onrender.com',
     '127.0.0.1',
     'localhost',
@@ -123,6 +124,7 @@ CSRF_COOKIE_HTTPONLY = False
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
+    'https://hanzen-1.onrender.com',
     'https://hanzen.onrender.com',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
