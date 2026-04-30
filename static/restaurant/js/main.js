@@ -214,8 +214,11 @@ async function addToCartAjax(itemId, nameJa) {
     });
     const data = await res.json();
     if (data.ok) {
-      const badge = document.getElementById('navCartCount');
-      if (badge) badge.textContent = data.cart_count;
+      // Update all cart badges (mobile and desktop)
+      const badges = document.querySelectorAll('#navCartCount, #navCartCountMobile');
+      badges.forEach(badge => {
+        if (badge) badge.textContent = data.cart_count;
+      });
       showToast(`「${nameJa}」を注文に追加しました`, `"${nameJa}" added to your order`);
     }
   } catch(e) { showToast('エラーが発生しました','An error occurred'); }

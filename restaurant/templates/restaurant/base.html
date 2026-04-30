@@ -42,8 +42,13 @@
       <span class="brand-sub">HANZEN · 本格日本料理</span>
     </a>
 
+    <!-- Mobile: Language toggle + Cart + Hamburger -->
     <div class="d-flex align-items-center gap-3 d-lg-none">
       <button class="lang-toggle" id="langBtnMobile" onclick="toggleLang()">EN</button>
+      <a href="{% url 'restaurant:cart' %}" class="cart-nav-icon" title="Cart">
+        <i class="fa-solid fa-bowl-rice"></i>
+        <span class="cart-nav-badge" id="navCartCountMobile">{{ cart_count|default:0 }}</span>
+      </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-label="Toggle">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -92,6 +97,7 @@
           </a>
         </li>
       </ul>
+      <!-- Desktop: Language toggle + Cart -->
       <div class="ms-3 d-none d-lg-flex align-items-center gap-2">
         <button class="lang-toggle" id="langBtnDesktop" onclick="toggleLang()">EN</button>
         <a href="{% url 'restaurant:cart' %}" class="cart-nav-icon" title="Cart">

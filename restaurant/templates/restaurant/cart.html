@@ -166,8 +166,10 @@ async function clearCartAll() {
 }
 
 function updateCartBadge(count) {
-  const badge = document.getElementById('navCartCount');
-  if (badge) badge.textContent = count;
+  const badges = document.querySelectorAll('#navCartCount, #navCartCountMobile');
+  badges.forEach(badge => {
+    if (badge) badge.textContent = count;
+  });
 }
 
 function updateTotals(subtotal) {
