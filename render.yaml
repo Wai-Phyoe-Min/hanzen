@@ -7,11 +7,13 @@ services:
       pip install --upgrade pip
       pip install -r requirements.txt
       python manage.py collectstatic --noinput
+      python manage.py makemigrations restaurant
       python manage.py migrate
-    startCommand: cd /opt/render/project/src && gunicorn hanzen.wsgi:application --log-file -
+      python manage.py shell -c "from restaurant.models import SiteSettings; SiteSettings.objects.get_or_create(pk=1); from restaurant.models import BusinessHours; [BusinessHours.objects.get_or_create(day=d, defaults={'is_closed': d==1, 'lunch_open': None if d==1 else datetime.time(11,30), 'lunch_close': None if d==1 else datetime.time(14,0), 'dinner_open': None if d==1 else datetime.time(18,0), 'dinner_close': None if d==1 else datetime.time(22,30)}) for d in range(7)]"
+    startCommand: gunicorn hanzen.wsgi:application --bind 0.0.0.0:$PORT --log-file -
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: 3.14.3
       - key: SECRET_KEY
         generateValue: true
       - key: DJANGO_DEBUG
