@@ -7,7 +7,7 @@ def site_settings_context(request):
     settings_obj = None
     try:
         settings_obj = SiteSettings.objects.get(pk=1)
-    except SiteSettings.DoesNotExist:
+    except (SiteSettings.DoesNotExist, Exception):
         pass
     return {
         'site_settings': settings_obj,

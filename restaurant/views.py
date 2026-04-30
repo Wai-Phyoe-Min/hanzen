@@ -38,12 +38,23 @@ def get_or_create_profile(user):
 
 # ── HOME ─────────────────────────────────────────
 def home(request):
+    try:
+        categories = Category.objects.prefetch_related('items').all()
+        courses = CourseMenu.objects.filter(is_active=True)
+        testimonials = Testimonial.objects.filter(is_active=True)
+        gallery = GalleryImage.objects.all()[:6]
+    except Exception:
+        categories = []
+        courses = []
+        testimonials = []
+        gallery = []
+    
     return render(request, 'restaurant/home.html', {
-        'categories':   Category.objects.prefetch_related('items').all(),
-        'courses':      CourseMenu.objects.filter(is_active=True),
-        'testimonials': Testimonial.objects.filter(is_active=True),
-        'gallery':      GalleryImage.objects.all()[:6],
-        'cart_count':   cart_count(request),
+        'categories': categories,
+        'courses': courses,
+        'testimonials': testimonials,
+        'gallery': gallery,
+        'cart_count': cart_count(request),
         'page': 'home',
     })
 
