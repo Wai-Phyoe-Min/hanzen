@@ -1,0 +1,78 @@
+{% extends "restaurant/base.html" %}
+{% block title %}営業時間 / Business Hours — 花膳{% endblock %}
+{% block content %}
+<section class="page-section hours-page">
+  <div class="container">
+    <div class="section-header section-header--center fade-in">
+      <span class="section-tag" data-ja="営業時間" data-en="Business Hours">営業時間</span>
+      <h2 class="section-title-jp">今週の営業時間</h2>
+      <p class="section-title-en">Weekly dining schedule</p>
+      <p class="section-desc txt" data-ja="本日の営業時間と、週の詳しいスケジュールをご確認ください。" data-en="See today’s opening times and the full weekly schedule.">本日の営業時間と、週の詳しいスケジュールをご確認ください。</p>
+    </div>
+
+    <div class="hours-calendar-panel fade-in delay-1">
+      <div class="hours-calendar-head">
+        <div>
+          <span class="calendar-meta" data-ja="今週のカレンダー" data-en="This week">今週のカレンダー</span>
+          <h3 class="calendar-title">Today’s hours at a glance</h3>
+          <p class="calendar-sub txt" data-ja="曜日ごとの営業時間をスマートに表示します。" data-en="A modern weekly schedule to help you plan.">曜日ごとの営業時間をスマートに表示します。</p>
+        </div>
+        <a href="{% url 'restaurant:reservation' %}" class="btn-gold calendar-action">
+          <span class="txt" data-ja="今すぐ予約" data-en="Book Now">今すぐ予約</span>
+          <i class="fa-solid fa-arrow-right fa-xs"></i>
+        </a>
+      </div>
+      <div class="hours-calendar-strip">
+        {% for h in hours %}
+        <div class="calendar-chip {% if forloop.counter0 == today_index %}active{% endif %} {% if h.is_closed %}closed{% else %}open{% endif %}">
+          <span class="chip-day" data-ja="{{ h.day_label_ja }}" data-en="{{ h.day_label_en }}">{{ h.day_label_en }}</span>
+          <strong class="chip-label">{{ h.day_label_ja }}</strong>
+          <span class="chip-time">
+            {% if h.is_closed %}
+              <span class="txt" data-ja="休み" data-en="Closed">休み</span>
+            {% else %}
+              {{ h.lunch_open|time:'H:i' }}〜{{ h.dinner_close|time:'H:i' }}
+            {% endif %}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="hours-grid">
+      {% for h in hours %}
+      <article class="hours-card fade-in delay-{{ forloop.counter }} {% if h.is_closed %}closed{% else %}open{% endif %}">
+        <div class="hours-card-top">
+          <div class="hours-day-wrap">
+            <span class="hours-day-jp">{{ h.day_label_ja }}</span>
+            <span class="hours-day-en" data-ja="" data-en="{{ h.day_label_en }}">{{ h.day_label_en }}</span>
+          </div>
+          <span class="hours-pill" data-ja="{% if h.is_closed %}定休日{% else %}営業中{% endif %}" data-en="{% if h.is_closed %}Closed{% else %}Open{% endif %}">{% if h.is_closed %}Closed{% else %}Open{% endif %}</span>
+        </div>
+
+        <div class="hours-card-info">
+          {% if h.is_closed %}
+            <p class="hours-card-status txt" data-ja="この日はお休みです。" data-en="Closed for the day.">この日はお休みです。</p>
+          {% else %}
+            <div class="hours-card-line">
+              <span class="hours-label txt" data-ja="ランチ" data-en="Lunch">ランチ</span>
+              <strong>{{ h.lunch_open|time:'H:i' }}〜{{ h.lunch_close|time:'H:i' }}</strong>
+            </div>
+            <div class="hours-card-line">
+              <span class="hours-label txt" data-ja="ディナー" data-en="Dinner">ディナー</span>
+              <strong>{{ h.dinner_open|time:'H:i' }}〜{{ h.dinner_close|time:'H:i' }}</strong>
+            </div>
+            {% if h.note_ja or h.note_en %}
+              <div class="hours-card-note">
+                <span class="txt" data-ja="備考" data-en="Note">備考</span>
+                <span class="txt" data-ja="{{ h.note_ja }}" data-en="{{ h.note_en }}">{{ h.note_ja }}</span>
+              </div>
+            {% endif %}
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

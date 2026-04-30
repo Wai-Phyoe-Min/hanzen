@@ -1,0 +1,247 @@
+{% extends "restaurant/base.html" %}
+{% load i18n static %}
+{% block title %}花膳の物語 / Our Story — 花膳 HANZEN{% endblock %}
+
+{% block content %}
+
+<!-- Page Hero -->
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('/media/site_images/about_img.jpg')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content fade-in">
+    <span class="section-tag txt" style="color:var(--aka)" data-ja="私たちについて" data-en="About Us">私たちについて</span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="花膳の物語" data-en="The Story of Hanzen">花膳の物語</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="花膳の物語" data-en="The Story of Hanzen">The Story of Hanzen</span>
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+   ORIGIN STORY — THE DREAM OF TSURUNOSUKE
+══════════════════════════════════════════ -->
+<section style="background:var(--shiro);padding:7rem 0">
+  <div class="container">
+
+    <div class="row align-items-center gy-5 mb-6">
+      <div class="col-lg-5 fade-in">
+        <div class="about-img-wrap">
+          <div class="about-img-deco"></div>
+          <img src="/media/site_images/main_img.jfif"
+               alt="Founder portrait" loading="lazy"/>
+          <div class="about-stamp"><span>明治<br>十九年</span></div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 offset-lg-1 fade-in delay-2">
+        <span class="section-tag txt" data-ja="創業の物語" data-en="The Founding Story">創業の物語</span>
+        <h2 class="section-title-jp">鶴之助の<br>見果てぬ夢</h2>
+        <p class="section-title-en">The Undying Dream of Tsurunosuke</p>
+        <div class="gold-rule"><div class="rule-line"></div><div class="rule-diamond"></div></div>
+
+        <p class="about-p txt"
+           data-ja="1886年（明治十九年）の冬、一人の若い漁師が荒れ狂う日本海の岸に立っていた。その名は田中鶴之助——十七歳、無一文、しかし胸の中には消えることのない炎を宿していた。"
+           data-en="In the winter of 1886 (Meiji 19), a young fisherman stood at the edge of the raging Sea of Japan. His name was Tanaka Tsurunosuke — seventeen years old, penniless, yet carrying an inextinguishable flame in his chest.">
+          1886年（明治十九年）の冬、一人の若い漁師が荒れ狂う日本海の岸に立っていた。その名は田中鶴之助——十七歳、無一文、しかし胸の中には消えることのない炎を宿していた。
+        </p>
+
+        <p class="about-p txt"
+           data-ja="その日の嵐で、鶴之助は見知らぬ老婆に命を救われた。老婆は言った。「お前には借りがある。いつか、誰かの魂を食で救いなさい。」その言葉が、彼の人生を変えた。"
+           data-en="That stormy day, a mysterious old woman saved his life. She said: 'You owe a debt now. One day, save someone's soul with food.' Those words changed his life forever.">
+          その日の嵐で、鶴之助は見知らぬ老婆に命を救われた。老婆は言った。「お前には借りがある。いつか、誰かの魂を食で救いなさい。」その言葉が、彼の人生を変えた。
+        </p>
+
+        <p class="about-p txt"
+           data-ja="鶴之助は故郷を離れ、北海道の昆布漁師、京都の料亭、大阪の市場、そして長崎の貿易港を渡り歩いた。十五年の旅の末、1901年、東京は銀座の小さな路地裏に一軒の料理屋を開いた。屋号は「花膳」——花は、嵐の中にも咲く命の象徴。膳は、人と人が食卓を囲む絆の象徴。"
+           data-en="Tsurunosuke left his hometown and journeyed through Hokkaido's kelp fisheries, Kyoto's haute cuisine, Osaka's markets, and Nagasaki's trading ports. After fifteen years of wandering, in 1901, he opened a small restaurant in a Ginza alley. He named it 'Hanzen' — 花 for the flower that blooms even in storms, 膳 for the bond of people sharing a table.">
+          鶴之助は故郷を離れ、北海道の昆布漁師、京都の料亭、大阪の市場、そして長崎の貿易港を渡り歩いた。十五年の旅の末、1901年、東京は銀座の小さな路地裏に一軒の料理屋を開いた。屋号は「花膳」——花は、嵐の中にも咲く命の象徴。膳は、人と人が食卓を囲む絆の象徴。
+        </p>
+      </div>
+    </div>
+
+    <!-- Story Timeline -->
+    <div class="story-timeline fade-in">
+      <h2 class="section-title-jp text-center mb-2 txt" data-ja="百年の軌跡" data-en="A Century of History">百年の軌跡</h2>
+      <p class="section-title-en text-center mb-5">A Century of History</p>
+
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <div class="timeline-year">1901</div>
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h3 class="timeline-title txt" data-ja="創業——魂の料理屋" data-en="Founded — A Restaurant of Souls">創業——魂の料理屋</h3>
+            <p class="timeline-text txt"
+               data-ja="田中鶴之助、銀座の路地に花膳を開業。一日十席、予約不要。しかし開業翌日から行列ができた。彼の料理には、見知らぬ老婆から受け継いだ「救う力」があると、人々は噂した。"
+               data-en="Tsurunosuke opens Hanzen in a Ginza alley. Ten seats, no reservations. Yet from the next morning, a line formed. Rumour spread that his food carried the 'power to save' — a gift passed down from the mysterious old woman.">
+              田中鶴之助、銀座の路地に花膳を開業。一日十席、予約不要。しかし開業翌日から行列ができた。彼の料理には、見知らぬ老婆から受け継いだ「救う力」があると、人々は噂した。
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item timeline-right">
+          <div class="timeline-year">1923</div>
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h3 class="timeline-title txt" data-ja="関東大震災——灰の中の炊き出し" data-en="Great Earthquake — A Kitchen in the Ashes">関東大震災——灰の中の炊き出し</h3>
+            <p class="timeline-text txt"
+               data-ja="大震災で花膳の建物は全壊。しかし鶴之助は翌朝、焼け跡に竃を置き、三日三晩無料で炊き出しを続けた。「食は命だ。商売は後でいい。」その言葉は今も花膳の壁に刻まれている。"
+               data-en="The Great Kanto Earthquake destroys Hanzen entirely. Yet Tsurunosuke sets up a stove in the rubble the next morning, serving free meals for three days and nights. 'Food is life. Business can wait.' Those words are still carved into Hanzen's wall.">
+              大震災で花膳の建物は全壊。しかし鶴之助は翌朝、焼け跡に竃を置き、三日三晩無料で炊き出しを続けた。「食は命だ。商売は後でいい。」その言葉は今も花膳の壁に刻まれている。
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-year">1952</div>
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h3 class="timeline-title txt" data-ja="二代目——幻の出汁" data-en="Second Generation — The Phantom Dashi">二代目——幻の出汁</h3>
+            <p class="timeline-text txt"
+               data-ja="鶴之助の孫娘・田中梅が二代目を継承。彼女は北海道の羅臼昆布と、長崎の隠れ離島でのみ採れる「暁鰹」を組み合わせた「幻の出汁」を開発。「梅の出汁」と呼ばれるこの秘伝は、現在まで外部に漏らしたことが一度もない。"
+               data-en="Tsurunosuke's granddaughter, Tanaka Ume, inherits the restaurant. She develops the legendary 'Phantom Dashi' — combining Rausu kelp from Hokkaido with 'Akatsuki Katsuo', a bonito found only on a hidden island off Nagasaki. Known as 'Ume's Dashi', this secret recipe has never once been revealed to the outside world.">
+              鶴之助の孫娘・田中梅が二代目を継承。彼女は北海道の羅臼昆布と、長崎の隠れ離島でのみ採れる「暁鰹」を組み合わせた「幻の出汁」を開発。「梅の出汁」と呼ばれるこの秘伝は、現在まで外部に漏らしたことが一度もない。
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item timeline-right">
+          <div class="timeline-year">1987</div>
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h3 class="timeline-title txt" data-ja="三代目——革新と伝統の衝突" data-en="Third Generation — Clash of Innovation and Tradition">三代目——革新と伝統の衝突</h3>
+            <p class="timeline-text txt"
+               data-ja="田中孝之（三代目）が就任。フランスで修業した彼は、懐石料理にフレンチの技法を取り入れ、一時は「伝統を壊す者」と批判された。しかし祖母の出汁を守り抜き、独自の「和洋融合懐石」を確立。ミシュランが初めてその名を記録した年でもある。"
+               data-en="Takayuki Tanaka (third generation) takes the helm. Trained in France, he introduced French techniques to kaiseki, initially called 'a destroyer of tradition.' Yet he preserved his grandmother's dashi, establishing a uniquely Japanese-French kaiseki. The same year Michelin first recorded Hanzen's name.">
+              田中孝之（三代目）が就任。フランスで修業した彼は、懐石料理にフレンチの技法を取り入れ、一時は「伝統を壊す者」と批判された。しかし祖母の出汁を守り抜き、独自の「和洋融合懐石」を確立。ミシュランが初めてその名を記録した年でもある。
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-year">2009</div>
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h3 class="timeline-title txt" data-ja="奇跡の一皿" data-en="The Miraculous Dish">奇跡の一皿</h3>
+            <p class="timeline-text txt"
+               data-ja="末期癌を宣告された著名な文筆家・白石幸雄氏が「死ぬ前に花膳の飯が食いたい」と書き残したことが話題になった。彼は病院を抜け出し花膳を訪れ、大トロと梅の出汁椀を食べた。その後、奇跡的に回復。「花膳の料理が生きる力をくれた」と後に語った。この逸話は「花膳の奇跡」として今も語り継がれている。"
+               data-en="A famous terminally ill writer, Yukio Shiraishi, wrote that he wished to eat at Hanzen before dying. He escaped the hospital, visited Hanzen, and ate otoro and Ume's dashi soup. He miraculously recovered. 'Hanzen's food gave me the will to live,' he later wrote. This story lives on as 'The Miracle of Hanzen.'">
+              末期癌を宣告された著名な文筆家・白石幸雄氏が「死ぬ前に花膳の飯が食いたい」と書き残したことが話題になった。彼は病院を抜け出し花膳を訪れ、大トロと梅の出汁椀を食べた。その後、奇跡的に回復。「花膳の料理が生きる力をくれた」と後に語った。
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item timeline-right">
+          <div class="timeline-year">今日</div>
+          <div class="timeline-dot" style="background:var(--aka)"></div>
+          <div class="timeline-content">
+            <h3 class="timeline-title txt" data-ja="四代目——世界へ" data-en="Fourth Generation — To the World">四代目——世界へ</h3>
+            <p class="timeline-text txt"
+               data-ja="田中芳弘（四代目）。東京大学農学部、パリ「ル・ジャルダン」、そして京都の禅寺での修行を経て就任。彼の哲学は「一皿が、世界を一つにする」。梅の出汁を守りながら、世界六十か国の食文化を学んだ彼が作り出す料理は、もはや日本料理の枠を超え、一つの芸術として世界に認められている。"
+               data-en="Yoshihiro Tanaka (fourth generation). After studying agricultural science at Tokyo University, training at 'Le Jardin' in Paris, and meditating at a Kyoto Zen temple, he inherits Hanzen. His philosophy: 'One dish can unite the world.' Protecting Ume's Dashi while drawing on sixty countries' food cultures, his cuisine transcends Japanese cooking — it is recognised globally as a form of living art.">
+              田中芳弘（四代目）。東京大学農学部、パリ「ル・ジャルダン」、そして京都の禅寺での修行を経て就任。彼の哲学は「一皿が、世界を一つにする」。梅の出汁を守りながら、世界六十か国の食文化を学んだ彼が作り出す料理は、もはや日本料理の枠を超え、一つの芸術として世界に認められている。
+            </p>
+          </div>
+        </div>
+
+      </div><!-- /timeline -->
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+   THREE PILLARS
+══════════════════════════════════════════ -->
+<section style="background:var(--shiro-warm);padding:6rem 0">
+  <div class="container">
+    <div class="text-center mb-5 fade-in">
+      <span class="section-tag txt" data-ja="花膳の哲学" data-en="Our Philosophy">花膳の哲学</span>
+      <h2 class="section-title-jp txt" data-ja="受け継がれし三つの誓い" data-en="Three Inherited Vows">受け継がれし三つの誓い</h2>
+      <p class="section-title-en">Three Vows Passed Down Through Generations</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4 fade-in delay-1">
+        <div class="pillar-card">
+          <div class="pillar-num">一</div>
+          <h3 class="pillar-title-jp">救う</h3>
+          <h3 class="pillar-title-en">To Save</h3>
+          <p class="pillar-desc txt"
+             data-ja="創業者・鶴之助が老婆から受けた言葉。「食で魂を救う」——この誓いは、どんな時代も花膳の根幹に宿り続けている。お客様の一日を、一口で変えること。それが私たちの使命。"
+             data-en="The words Tsurunosuke received from the old woman: 'Save souls with food.' This vow has lived at Hanzen's core through every era. Changing a guest's day with a single bite — that is our mission.">
+            創業者・鶴之助が老婆から受けた言葉。「食で魂を救う」——この誓いは、どんな時代も花膳の根幹に宿り続けている。お客様の一日を、一口で変えること。それが私たちの使命。
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4 fade-in delay-2">
+        <div class="pillar-card">
+          <div class="pillar-num">二</div>
+          <h3 class="pillar-title-jp">守る</h3>
+          <h3 class="pillar-title-en">To Protect</h3>
+          <p class="pillar-desc txt"
+             data-ja="梅の出汁は、百年以上誰にも教えたことがない。しかしそれは秘密主義ではなく、敬意の形。食材への、生産者への、先人への深い敬意が、花膳の味を唯一無二のものにしている。"
+             data-en="Ume's Dashi has never been shared with anyone in over a century. Not out of secrecy, but reverence — deep respect for ingredients, producers, and ancestors. That reverence is what makes Hanzen's flavour truly one of a kind.">
+            梅の出汁は、百年以上誰にも教えたことがない。しかしそれは秘密主義ではなく、敬意の形。食材への、生産者への、先人への深い敬意が、花膳の味を唯一無二のものにしている。
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4 fade-in delay-3">
+        <div class="pillar-card">
+          <div class="pillar-num">三</div>
+          <h3 class="pillar-title-jp">繋ぐ</h3>
+          <h3 class="pillar-title-en">To Connect</h3>
+          <p class="pillar-desc txt"
+             data-ja="食卓を囲むことは、人と人の魂が交わる瞬間だ。四代目・芳弘は言う、「私の皿は手紙だ。食べた人の心に何かを届けたい。」花膳の料理は、過去と現在、日本と世界、見知らぬ者同士を繋ぐ架け橋である。"
+             data-en="Sharing a table is the moment two souls meet. Yoshihiro says: 'My plate is a letter. I want to deliver something to the heart of whoever eats it.' Hanzen's cuisine bridges past and present, Japan and the world, and strangers who have never met.">
+            食卓を囲むことは、人と人の魂が交わる瞬間だ。四代目・芳弘は言う、「私の皿は手紙だ。食べた人の心に何かを届けたい。」花膳の料理は、過去と現在、日本と世界、見知らぬ者同士を繋ぐ架け橋である。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+   QUOTE BANNER
+══════════════════════════════════════════ -->
+<section style="background:var(--sumi);padding:5rem 0;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;font-family:var(--font-jp);font-size:20rem;color:rgba(139,28,28,.04);display:flex;align-items:center;justify-content:center;pointer-events:none;line-height:1">花</div>
+  <div class="container text-center" style="position:relative;z-index:1">
+    <p style="font-family:var(--font-jp);font-size:clamp(1.1rem,3vw,1.8rem);color:var(--shiro);line-height:2;letter-spacing:.08em;max-width:700px;margin:0 auto" class="fade-in txt"
+       data-ja="「一椀の汁が、千の言葉よりも雄弁に語ることがある。」<br>——初代・田中鶴之助"
+       data-en="&ldquo;A single bowl of soup can speak more eloquently than a thousand words.&rdquo;<br>— Founder, Tanaka Tsurunosuke">
+      「一椀の汁が、千の言葉よりも雄弁に語ることがある。」<br>
+      <span style="font-size:.7em;color:var(--smoke)">——初代・田中鶴之助</span>
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+   STATS
+══════════════════════════════════════════ -->
+<section style="background:var(--shiro);padding:5rem 0">
+  <div class="container">
+    <div class="row text-center g-4 fade-in">
+      <div class="col-6 col-md-3">
+        <div class="stat-num counter" data-target="123">0</div>
+        <div class="stat-label txt" data-ja="創業からの年数" data-en="Years Since Founding">創業からの年数</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-num counter" data-target="4">0</div>
+        <div class="stat-label txt" data-ja="世代" data-en="Generations">世代</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-num counter" data-target="60">0</div>
+        <div class="stat-label txt" data-ja="学んだ食文化の国数" data-en="Countries Studied">学んだ食文化の国数</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-num" style="font-size:2.8rem;color:var(--aka)">1</div>
+        <div class="stat-label txt" data-ja="秘伝の出汁（不変）" data-en="Secret Dashi (Unchanged)">秘伝の出汁（不変）</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

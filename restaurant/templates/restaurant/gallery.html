@@ -1,0 +1,38 @@
+{% extends "restaurant/base.html" %}
+{% load i18n %}
+{% block title %}ギャラリー / Gallery — 花膳{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('/media/site_images/gallery_img.jpg')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content">
+    <span class="section-tag txt" style="color:var(--gold)" data-ja="ギャラリー" data-en="Gallery">ギャラリー</span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="ギャラリー" data-en="Gallery">Gallery</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="一皿の芸術" data-en="Art on Every Plate">一皿の芸術</span>
+    </p>
+  </div>
+</div>
+<section style="padding:5rem 0;background:var(--cream)">
+  <div class="container">
+    <div class="gallery-masonry row g-3">
+      {% for img in images %}
+      <div class="col-sm-6 col-md-4 col-lg-3 fade-in">
+        <div class="g-item-full" onclick="openLightbox('{{ img.image_url }}')">
+          <img src="{{ img.thumb_url|default:img.image_url }}" alt="{{ img.title_en }}" loading="lazy"/>
+          <div class="g-overlay">
+            <i class="fa-solid fa-expand"></i>
+            {% if img.title_ja or img.title_en %}<p class="g-caption" data-ja="{{ img.title_ja }}" data-en="{{ img.title_en }}">{{ img.title_ja|default:img.title_en }}</p>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5"><p style="color:var(--smoke)" data-ja="画像がありません" data-en="No images yet">画像がありません</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<div id="lightbox"><button id="lightbox-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button><img id="lightbox-img" src="" alt="Gallery"/></div>
+{% endblock %}

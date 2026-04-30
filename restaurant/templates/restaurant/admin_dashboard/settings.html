@@ -1,0 +1,94 @@
+{% extends "restaurant/base.html" %}
+{% block title %}サイト設定 / Settings — 花膳 Admin{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/admin_dashboard/_sidebar.html" %}
+  <div class="dash-main">
+    <div class="dash-header">
+      <h1 class="dash-title">サイト設定 <span class="admin-en-label">/ Site Settings</span></h1>
+    </div>
+    {% if messages %}{% for msg in messages %}<div class="alert-msg alert-success mb-3" style="position:static;animation:none">{{ msg }}</div>{% endfor %}{% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="dash-section">
+        <h2 class="dash-section-title">シーズナルバナー <span class="admin-en-label">/ Seasonal Banner</span></h2>
+        <div class="row g-3">
+          <div class="col-12 d-flex align-items-center gap-3">
+            <label style="display:flex;align-items:center;gap:.6rem;cursor:pointer;font-size:.85rem;color:var(--smoke)">
+              <input type="checkbox" name="banner_active" {% if settings.banner_active %}checked{% endif %} style="accent-color:var(--aka);width:16px;height:16px"/>
+              バナーを表示する / Show banner
+            </label>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">バナーテキスト（日本語） / Banner Text (JP)</label>
+            <input type="text" name="banner_ja" class="form-control" value="{{ settings.seasonal_banner_text_ja }}" placeholder="春の特別メニュー 開始"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">バナーテキスト（英語） / Banner Text (EN)</label>
+            <input type="text" name="banner_en" class="form-control" value="{{ settings.seasonal_banner_text_en }}" placeholder="Spring Special Menu Now Available"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-section">
+        <h2 class="dash-section-title">お知らせ <span class="admin-en-label">/ Announcements</span></h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">お知らせ（日本語） / Announcement (JP)</label>
+            <textarea name="announcement_ja" class="form-control" rows="4" placeholder="ホームページに表示するお知らせ文">{{ settings.announcement_ja }}</textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">お知らせ（英語） / Announcement (EN)</label>
+            <textarea name="announcement_en" class="form-control" rows="4" placeholder="Announcement text for homepage">{{ settings.announcement_en }}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-section">
+        <h2 class="dash-section-title">連絡先情報 <span class="admin-en-label">/ Contact Info</span></h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">電話番号 / Phone Number</label>
+            <input type="text" name="contact_phone" class="form-control" value="{{ settings.contact_phone }}" placeholder="03-1234-5678"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">受付時間（日本語） / Hours (JP)</label>
+            <input type="text" name="contact_hours_ja" class="form-control" value="{{ settings.contact_hours_ja }}" placeholder="月〜土 10:00〜20:00"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">受付時間（英語） / Hours (EN)</label>
+            <input type="text" name="contact_hours_en" class="form-control" value="{{ settings.contact_hours_en }}" placeholder="Mon–Sat 10:00–20:00"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">補足（日本語） / Note (JP)</label>
+            <input type="text" name="contact_note_ja" class="form-control" value="{{ settings.contact_note_ja }}" placeholder="日曜・祝日は除く"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">補足（英語） / Note (EN)</label>
+            <input type="text" name="contact_note_en" class="form-control" value="{{ settings.contact_note_en }}" placeholder="(Closed Sundays & holidays)"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-section">
+        <h2 class="dash-section-title">予約設定 <span class="admin-en-label">/ Reservation Settings</span></h2>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">時間枠あたりの最大予約数 / Max Slots per Time Slot</label>
+            <input type="number" name="slots_per_timeslot" class="form-control" value="{{ settings.slots_per_timeslot }}" min="1" max="50"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-3 mt-2">
+        <button type="submit" class="btn-submit" style="width:auto;padding:.85rem 2.5rem">
+          <i class="fa-solid fa-floppy-disk me-2"></i>
+          設定を保存する / Save Settings
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

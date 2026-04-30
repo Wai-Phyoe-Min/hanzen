@@ -1,0 +1,139 @@
+{% extends "restaurant/base.html" %}
+{% load i18n static %}
+{% block title %}メニュー / Menu — 花膳 HANZEN{% endblock %}
+
+{% block content %}
+<!-- Page Hero -->
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('/media/site_images/menu_img.webp')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content">
+    <span class="section-tag txt" style="color:var(--gold)" data-ja="お品書き" data-en="Our Menu">お品書き</span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="メニュー" data-en="Menu">メニュー</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="メニュー" data-en="Menu">Menu</span>
+    </p>
+  </div>
+</div>
+
+<section style="padding:5rem 0;background:var(--parchment)">
+  <div class="container">
+    <!-- Filter Tabs -->
+    <div class="menu-tabs fade-in" style="margin-bottom:3rem">
+      <a href="{% url 'restaurant:menu' %}" class="menu-tab {% if not active_cat %}active{% endif %}" data-cat="">
+        <span class="txt" data-ja="すべて" data-en="All">すべて</span>
+      </a>
+      {% for cat in categories %}
+      <a href="{% url 'restaurant:menu' %}?cat={{ cat.slug }}"
+         class="menu-tab {% if active_cat and active_cat.slug == cat.slug %}active{% endif %}"
+         data-cat="{{ cat.slug }}">
+        <span class="txt" data-ja="{{ cat.name_ja }}" data-en="{{ cat.name_en }}">{{ cat.name_ja }}</span>
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- Diet filters -->
+    <div class="diet-filters fade-in mb-4">
+      <button class="diet-btn active" data-filter="all">
+        <span class="txt" data-ja="全て" data-en="All">全て</span>
+      </button>
+      <button class="diet-btn" data-filter="vegetarian">
+        <i class="fa-solid fa-leaf"></i>
+        <span class="txt" data-ja="ベジタリアン" data-en="Vegetarian">ベジタリアン</span>
+      </button>
+      <button class="diet-btn" data-filter="gluten_free">
+        <i class="fa-solid fa-wheat-awn-circle-exclamation"></i>
+        <span class="txt" data-ja="グルテンフリー" data-en="Gluten Free">グルテンフリー</span>
+      </button>
+    </div>
+
+    <!-- Items Grid -->
+    <div class="row g-4" id="fullMenuGrid">
+      {% for item in items %}
+      <div class="col-md-6 col-lg-3 fade-in delay-{{ forloop.counter|add:"-1"|divisibleby:4|yesno:'0,1,2,3' }}"
+           data-vegetarian="{{ item.is_vegetarian|yesno:'true,false' }}"
+           data-gluten="{{ item.is_gluten_free|yesno:'true,false' }}"
+           data-category="{{ item.category.slug }}">
+        <div class="dish-card">
+          <div class="dish-img-wrap">
+            <img src="{{ item.image_url }}" alt="{{ item.name_en }}" loading="lazy"/>
+            {% if item.badge %}
+              <span class="dish-badge badge-{{ item.badge }}"
+                    data-ja="{{ item.get_badge_display }}"
+                    data-en="{{ item.badge_label_en }}">
+                {{ item.get_badge_display }}
+              </span>
+            {% endif %}
+            {% if item.is_vegetarian %}<span class="veg-badge" title="Vegetarian"><i class="fa-solid fa-leaf"></i></span>{% endif %}
+          </div>
+          <div class="dish-body">
+            <div class="dish-name-jp">{{ item.name_ja }}</div>
+            <div class="dish-name-en">{{ item.name_en }}</div>
+            <p class="dish-desc txt" data-ja="{{ item.description_ja }}" data-en="{{ item.description_en }}">{{ item.description_ja }}</p>
+            <div class="dish-footer">
+              <span class="dish-price">{{ item.price_formatted }}</span>
+              <button class="dish-order" onclick="addToCartAjax({{ item.pk }}, '{{ item.name_ja }}')">
+                <span class="txt" data-ja="注文" data-en="Order">注文</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5" style="color:var(--smoke)">
+        <i class="fa-solid fa-bowl-rice fa-2x mb-3" style="opacity:.3"></i>
+        <p class="txt" data-ja="メニューが見つかりませんでした。" data-en="No menu items found.">メニューが見つかりませんでした。</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Diet filter
+document.querySelectorAll('.diet-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.diet-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    document.querySelectorAll('#fullMenuGrid > div').forEach(card => {
+      if (filter === 'all') { card.style.display = ''; return; }
+      const show = filter === 'vegetarian' ? card.dataset.vegetarian === 'true'
+                                           : card.dataset.gluten === 'true';
+      card.style.display = show ? '' : 'none';
+    });
+  });
+});
+
+// Category tabs without page reload
+const menuTabs = document.querySelectorAll('.menu-tab');
+const menuCards = document.querySelectorAll('#fullMenuGrid > div');
+menuTabs.forEach(tab => {
+  tab.addEventListener('click', event => {
+    event.preventDefault();
+    const selectedCat = tab.dataset.cat;
+    menuTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    menuCards.forEach(card => {
+      if (!selectedCat || selectedCat === '') {
+        card.style.display = '';
+      } else {
+        card.style.display = card.dataset.category === selectedCat ? '' : 'none';
+      }
+    });
+
+    const query = selectedCat ? `?cat=${selectedCat}` : window.location.pathname;
+    if (selectedCat) {
+      history.replaceState(null, '', query);
+    } else {
+      history.replaceState(null, '', window.location.pathname);
+    }
+  });
+});
+</script>
+{% endblock %}

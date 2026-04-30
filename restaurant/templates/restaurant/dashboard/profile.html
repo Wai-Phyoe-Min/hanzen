@@ -1,0 +1,159 @@
+{% extends "restaurant/base.html" %}
+{% block title %}プロフィール / Profile — 花膳{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/dashboard/_sidebar.html" %}
+  <div class="dash-main">
+
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title txt" data-ja="プロフィール設定" data-en="Profile Settings">プロフィール設定</h1>
+        <p class="dash-subtitle txt" data-ja="アカウント情報を編集する" data-en="Edit your account information">アカウント情報を編集する</p>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for msg in messages %}
+      <div class="alert-msg alert-success mb-3" style="position:static;animation:none;margin-bottom:1rem">
+        {{ msg }}
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="dash-section">
+      <div style="max-width:640px">
+
+        <!-- Avatar -->
+        <div style="display:flex;align-items:center;gap:1.2rem;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid rgba(139,28,28,.08)">
+          <div class="dash-avatar" style="width:70px;height:70px;font-size:1.8rem;flex-shrink:0">
+            {{ user.first_name|first|default:user.username|first|upper }}
+          </div>
+          <div>
+            <div style="font-family:var(--font-jp);font-size:1.1rem;font-weight:700;color:var(--sumi)">
+              {{ user.get_full_name|default:user.username }}
+            </div>
+            <div style="font-size:.78rem;color:var(--smoke);margin-top:.2rem">{{ user.email }}</div>
+            <div style="font-size:.72rem;color:var(--smoke);margin-top:.2rem">
+              <span class="txt" data-ja="登録日：" data-en="Joined:">登録日：</span>
+              {{ user.date_joined|date:"Y年m月d日" }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Form -->
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-4">
+
+            <!-- First Name -->
+            <div class="col-md-6">
+              <label class="form-label">
+                <span class="txt" data-ja="名前（名）" data-en="First Name">名前（名）</span>
+              </label>
+              <input type="text" name="first_name" class="form-control"
+                     value="{{ form.first_name.value|default:'' }}"
+                     placeholder="太郎 / Taro"/>
+            </div>
+
+            <!-- Last Name -->
+            <div class="col-md-6">
+              <label class="form-label">
+                <span class="txt" data-ja="名前（姓）" data-en="Last Name">名前（姓）</span>
+              </label>
+              <input type="text" name="last_name" class="form-control"
+                     value="{{ form.last_name.value|default:'' }}"
+                     placeholder="田中 / Tanaka"/>
+            </div>
+
+            <!-- Email -->
+            <div class="col-12">
+              <label class="form-label">
+                <span class="txt" data-ja="メールアドレス" data-en="Email Address">メールアドレス</span>
+              </label>
+              <input type="email" name="email" class="form-control"
+                     value="{{ form.email.value|default:'' }}"
+                     placeholder="taro@example.com"/>
+            </div>
+
+            <!-- Phone -->
+            <div class="col-md-6">
+              <label class="form-label">
+                <span class="txt" data-ja="電話番号" data-en="Phone Number">電話番号</span>
+              </label>
+              {{ form.phone }}
+              {% if form.phone.errors %}<div class="field-error">{{ form.phone.errors.0 }}</div>{% endif %}
+            </div>
+
+            <!-- Birthday -->
+            <div class="col-md-6">
+              <label class="form-label">
+                <span class="txt" data-ja="誕生日（任意）" data-en="Birthday (Optional)">誕生日（任意）</span>
+              </label>
+              {{ form.birthday }}
+              {% if form.birthday.errors %}<div class="field-error">{{ form.birthday.errors.0 }}</div>{% endif %}
+            </div>
+
+            <!-- Preferred Language -->
+            <div class="col-md-6">
+              <label class="form-label">
+                <span class="txt" data-ja="表示言語" data-en="Preferred Language">表示言語</span>
+              </label>
+              <select name="preferred_lang" class="form-control">
+                <option value="ja" {% if form.preferred_lang.value == 'ja' %}selected{% endif %}>
+                  🇯🇵 日本語 / Japanese
+                </option>
+                <option value="en" {% if form.preferred_lang.value == 'en' %}selected{% endif %}>
+                  🇬🇧 English
+                </option>
+              </select>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="col-md-6 d-flex align-items-end">
+              <label style="display:flex;align-items:center;gap:.6rem;cursor:pointer;font-size:.82rem;color:var(--smoke);padding-bottom:.5rem">
+                <input type="checkbox" name="newsletter"
+                       {% if form.newsletter.value %}checked{% endif %}
+                       style="accent-color:var(--aka);width:16px;height:16px"/>
+                <span class="txt" data-ja="メールマガジンを受け取る" data-en="Receive newsletter">
+                  メールマガジンを受け取る
+                </span>
+              </label>
+            </div>
+
+            <!-- Dietary Notes -->
+            <div class="col-12">
+              <label class="form-label">
+                <span class="txt" data-ja="食事制限・アレルギー情報（任意）" data-en="Dietary Restrictions / Allergies (Optional)">
+                  食事制限・アレルギー情報（任意）
+                </span>
+              </label>
+              <textarea name="dietary_notes" rows="3" class="form-control"
+                placeholder="例）えびアレルギー、グルテン不耐性 / e.g. Shrimp allergy, gluten intolerance">{{ form.dietary_notes.value|default:'' }}</textarea>
+            </div>
+
+          </div>
+
+          <div class="d-flex gap-3 mt-4 flex-wrap">
+            <button type="submit" class="btn-submit" style="width:auto;padding:.85rem 2.5rem">
+              <span class="txt" data-ja="変更を保存する" data-en="Save Changes">変更を保存する</span>
+              <i class="fa-solid fa-floppy-disk ms-2"></i>
+            </button>
+            <a href="{% url 'restaurant:change_password' %}" class="dash-cancel-btn" style="border-color:rgba(139,28,28,.3)">
+              <i class="fa-solid fa-key fa-xs me-1"></i>
+              <span class="txt" data-ja="パスワード変更" data-en="Change Password">パスワード変更</span>
+            </a>
+            <a href="{% url 'restaurant:dashboard' %}"
+               style="display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.5rem;border:1px solid rgba(139,28,28,.2);color:var(--smoke);text-decoration:none;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;transition:all .3s"
+               onmouseover="this.style.borderColor='var(--aka)';this.style.color='var(--aka)'"
+               onmouseout="this.style.borderColor='rgba(139,28,28,.2)';this.style.color='var(--smoke)'">
+              <i class="fa-solid fa-arrow-left fa-xs"></i>
+              <span class="txt" data-ja="戻る" data-en="Cancel">戻る</span>
+            </a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

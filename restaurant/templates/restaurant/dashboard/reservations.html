@@ -1,0 +1,71 @@
+{% extends "restaurant/base.html" %}
+{% block title %}予約履歴 — 花膳{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/dashboard/_sidebar.html" %}
+  <div class="dash-main">
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title txt" data-ja="予約履歴" data-en="Reservation History">予約履歴</h1>
+        <p class="dash-subtitle">{{ reservations.count }} 件</p>
+      </div>
+      <a href="{% url 'restaurant:reservation' %}" class="btn-gold" style="font-size:.72rem">
+        <i class="fa-solid fa-plus fa-sm"></i>
+        <span class="txt" data-ja="新規予約" data-en="New Reservation">新規予約</span>
+      </a>
+    </div>
+    <div class="dash-section">
+      {% if reservations %}
+      <div class="dash-res-list">
+        {% for res in reservations %}
+        <div class="dash-res-card">
+          <div class="dash-res-date">
+            <span class="res-day">{{ res.date|date:"d" }}</span>
+            <span class="res-month">{{ res.date|date:"M y" }}</span>
+          </div>
+          <div class="dash-res-info">
+            <div class="dash-res-name">{{ res.name }}</div>
+            <div class="dash-res-meta">
+              <span><i class="fa-solid fa-clock fa-xs"></i> {{ res.time }}</span>
+              <span><i class="fa-solid fa-users fa-xs"></i> {{ res.party_size }}名</span>
+              {% if res.course %}<span><i class="fa-solid fa-utensils fa-xs"></i> {{ res.course.name_ja }}</span>{% endif %}
+              {% if res.special_request %}<span style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><i class="fa-solid fa-note-sticky fa-xs"></i> {{ res.special_request|truncatechars:40 }}</span>{% endif %}
+            </div>
+          </div>
+          <div class="dash-res-right">
+            <span class="res-status-badge status-{{ res.status }}">
+              {% if res.status == 'pending' %}
+                <span class="txt" data-ja="確認中" data-en="Pending">確認中</span>
+              {% elif res.status == 'confirmed' %}
+                <span class="txt" data-ja="確認済み" data-en="Confirmed">確認済み</span>
+              {% elif res.status == 'cancelled' %}
+                <span class="txt" data-ja="キャンセル" data-en="Cancelled">キャンセル</span>
+              {% else %}
+                <span class="txt" data-ja="{{ res.get_status_display }}" data-en="{{ res.get_status_display }}">{{ res.get_status_display }}</span>
+              {% endif %}
+            </span>
+            {% if res.status == 'pending' or res.status == 'confirmed' %}
+            <button type="button" class="res-cancel-btn" data-action="{% url 'restaurant:cancel_reservation' res.pk %}"
+                    data-res-date="{{ res.date|date:'Y年m月d日' }}" data-res-time="{{ res.time }}">
+              <span class="txt" data-ja="キャンセル" data-en="Cancel">キャンセル</span>
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <div class="dash-empty">
+        <i class="fa-regular fa-calendar-xmark fa-2x mb-3" style="opacity:.25"></i>
+        <p class="txt" data-ja="予約履歴がありません。" data-en="No reservations found.">予約履歴がありません。</p>
+        <a href="{% url 'restaurant:reservation' %}" class="btn-gold mt-3" style="font-size:.72rem;display:inline-flex">
+          <span class="txt" data-ja="予約する" data-en="Book Now">予約する</span>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% include "restaurant/dashboard/_cancel_modal.html" %}
+{% endblock %}

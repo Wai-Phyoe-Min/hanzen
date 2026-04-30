@@ -1,0 +1,180 @@
+{% extends "restaurant/base.html" %}
+{% block title %}管理者プロフィール / Admin Profile — 花膳{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/admin_dashboard/_sidebar.html" %}
+  <div class="dash-main">
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">
+          管理者プロフィール
+          <span style="font-size:.55em;color:var(--smoke);font-family:var(--font-en);font-style:italic"> Admin Profile</span>
+        </h1>
+        <p class="dash-subtitle">アカウント情報の管理 / Manage Your Account</p>
+      </div>
+    </div>
+
+    <!-- Profile Info Card -->
+    <div class="admin-card mb-4">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div style="width:70px; height:70px; background:var(--aka-dark); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-jp); font-size:2rem; font-weight:700; color:var(--shiro); flex-shrink:0">
+          {{ request.user.first_name|first|default:request.user.username|first|upper }}
+        </div>
+        <div>
+          <div style="font-size:1.2rem;font-weight:700;color:var(--sumi);font-family:var(--font-jp)">
+            {{ request.user.get_full_name|default:request.user.username }}
+          </div>
+          <div style="font-size:.82rem;color:var(--smoke)">
+            {{ request.user.email }}
+          </div>
+          <div style="font-size:.72rem;color:var(--smoke);margin-top:.2rem">
+            {% if request.user.is_superuser %}
+              <span class="res-status-badge status-cancelled">スーパーユーザー / Superuser</span>
+            {% elif request.user.is_staff %}
+              <span class="res-status-badge status-confirmed">スタッフ / Staff</span>
+            {% endif %}
+            <span style="margin-left:.5rem">登録日: {{ request.user.date_joined|date:"Y/m/d" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a href="{% url 'restaurant:admin_change_password' %}" class="admin-action-btn">
+          <i class="fa-solid fa-key"></i>
+          パスワード変更 / Change Password
+        </a>
+      </div>
+    </div>
+
+    <!-- Profile Edit Form -->
+    <div class="admin-card">
+      <h3 class="admin-card-title">
+        プロフィール編集
+        <span class="admin-en-label">/ Edit Profile</span>
+      </h3>
+      
+      <form method="post">
+        {% csrf_token %}
+        
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label">
+              <span data-ja="名前（姓）" data-en="Last Name">名前（姓）</span>
+              <span style="font-size:.72em;color:var(--smoke);font-weight:400"> / Last Name</span>
+            </label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+              {% for e in form.last_name.errors %}
+                <div class="field-error">{{ e }}</div>
+              {% endfor %}
+            {% endif %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">
+              <span data-ja="名前（名）" data-en="First Name">名前（名）</span>
+              <span style="font-size:.72em;color:var(--smoke);font-weight:400"> / First Name</span>
+            </label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+              {% for e in form.first_name.errors %}
+                <div class="field-error">{{ e }}</div>
+              {% endfor %}
+            {% endif %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">
+              <span data-ja="メールアドレス" data-en="Email Address">メールアドレス</span>
+              <span style="font-size:.72em;color:var(--smoke);font-weight:400"> / Email</span>
+            </label>
+            {{ form.email }}
+            {% if form.email.errors %}
+              {% for e in form.email.errors %}
+                <div class="field-error">{{ e }}</div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">
+              <span data-ja="電話番号" data-en="Phone Number">電話番号</span>
+              <span style="font-size:.72em;color:var(--smoke);font-weight:400"> / Phone</span>
+            </label>
+            {{ form.phone }}
+            {% if form.phone.errors %}
+              {% for e in form.phone.errors %}
+                <div class="field-error">{{ e }}</div>
+              {% endfor %}
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">
+              <span data-ja="誕生日" data-en="Birthday">誕生日</span>
+              <span style="font-size:.72em;color:var(--smoke);font-weight:400"> / Birthday</span>
+            </label>
+            {{ form.birthday }}
+            {% if form.birthday.errors %}
+              {% for e in form.birthday.errors %}
+                <div class="field-error">{{ e }}</div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">
+              <span data-ja="言語設定" data-en="Language">言語設定</span>
+              <span style="font-size:.72em;color:var(--smoke);font-weight:400"> / Language</span>
+            </label>
+            {{ form.preferred_lang }}
+            {% if form.preferred_lang.errors %}
+              {% for e in form.preferred_lang.errors %}
+                <div class="field-error">{{ e }}</div>
+              {% endfor %}
+            {% endif %}
+          </div>
+          <div class="col-md-6 d-flex align-items-end">
+            <div class="form-check mb-2">
+              {{ form.newsletter }}
+              <label class="form-check-label" for="{{ form.newsletter.id_for_label }}" style="font-size:.82rem;color:var(--smoke)">
+                <span data-ja="メルマガ登録" data-en="Newsletter Subscription">メルマガ登録</span>
+                <span style="font-size:.8em;opacity:.7"> / Newsletter</span>
+              </label>
+            </div>
+            {% if form.newsletter.errors %}
+              {% for e in form.newsletter.errors %}
+                <div class="field-error">{{ e }}</div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">
+            <span data-ja="食事制限・アレルギー" data-en="Dietary Restrictions & Allergies">食事制限・アレルギー</span>
+            <span style="font-size:.72em;color:var(--smoke);font-weight:400"> / Dietary Notes</span>
+          </label>
+          {{ form.dietary_notes }}
+          {% if form.dietary_notes.errors %}
+            {% for e in form.dietary_notes.errors %}
+              <div class="field-error">{{ e }}</div>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn-submit" style="width:auto;padding:.75rem 2rem">
+            <i class="fa-solid fa-check me-2"></i>
+            <span data-ja="保存" data-en="Save Changes">保存</span>
+          </button>
+          <a href="{% url 'restaurant:admin_dashboard' %}" class="dash-cancel-btn">
+            <span data-ja="キャンセル" data-en="Cancel">キャンセル</span>
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

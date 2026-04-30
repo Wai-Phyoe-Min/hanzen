@@ -1,0 +1,177 @@
+{% extends "restaurant/base.html" %}
+{% block title %}お問い合わせ管理 / Contact — 花膳 Admin{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/admin_dashboard/_sidebar.html" %}
+  <div class="dash-main">
+
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">お問い合わせ管理 <span class="admin-en-label">/ Contact Management</span></h1>
+        <p class="dash-subtitle">{{ contacts.count }} 件 / {{ contacts.count }} messages</p>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="d-flex gap-3 mb-3 align-items-center">
+      <form method="get" class="d-flex gap-2" style="flex:1;max-width:400px">
+        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="検索 / Search messages..." 
+               class="form-control" style="font-size:.85rem"/>
+        <button type="submit" class="btn-submit" style="padding:.5rem 1rem;font-size:.8rem">
+          <i class="fa-solid fa-search"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="d-flex gap-2 flex-wrap mb-3">
+      <a href="{% url 'restaurant:admin_contact' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if not request.GET.status %}active{% endif %}">全て / All</a>
+      <a href="?status=unread{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if request.GET.status == 'unread' %}active{% endif %}">未読 / Unread</a>
+      <a href="?status=read{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if request.GET.status == 'read' %}active{% endif %}">既読 / Read</a>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>送信者 <span class="admin-th-en">/ Sender</span></th>
+              <th>件名 <span class="admin-th-en">/ Subject</span></th>
+              <th>メッセージ <span class="admin-th-en">/ Message</span></th>
+              <th>状態 <span class="admin-th-en">/ Status</span></th>
+              <th>日時 <span class="admin-th-en">/ Date</span></th>
+              <th>操作 <span class="admin-th-en">/ Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contact in contacts %}
+            <tr id="contact-row-{{ contact.pk }}" {% if not contact.is_read %}style="background:rgba(255,193,7,.05)"{% endif %}>
+              <td>
+                <div style="font-weight:600">{{ contact.name }}</div>
+                <div style="font-size:.75rem;color:var(--smoke)">{{ contact.email }}</div>
+              </td>
+              <td>{{ contact.get_subject_display }}</td>
+              <td>
+                <div style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem">
+                  {{ contact.message|truncatechars:80 }}
+                </div>
+              </td>
+              <td>
+                {% if contact.is_read %}
+                  <span class="avail-toggle" style="background:rgba(40,167,69,.15);color:var(--success)">既読 / Read</span>
+                {% else %}
+                  <span class="avail-toggle" style="background:rgba(255,193,7,.15);color:var(--warning)">未読 / Unread</span>
+                {% endif %}
+              </td>
+              <td style="font-size:.8rem">
+                <div>{{ contact.created_at|date:"Y/m/d" }}</div>
+                <div style="color:var(--smoke);font-size:.7rem">{{ contact.created_at|time:"H:i" }}</div>
+              </td>
+              <td>
+                <button class="admin-action-btn" onclick="viewContactDetails({{ contact.pk }})" title="詳細 / Details">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                {% if not contact.is_read %}
+                <button class="admin-action-btn" onclick="markAsRead({{ contact.pk }})" title="既読にする / Mark as Read" style="color:var(--success)">
+                  <i class="fa-solid fa-check"></i>
+                </button>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" style="text-align:center;padding:3rem;color:var(--smoke)">
+                <i class="fa-regular fa-envelope fa-2x mb-3" style="display:block;opacity:.25"></i>
+                お問い合わせがありません / No messages yet
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Contact Details Modal -->
+<div id="contactDetailsModal" class="modal-overlay" style="display:none">
+  <div class="modal-box" style="max-width:700px">
+    <div class="modal-header">
+      <h3 class="modal-title">お問い合わせ詳細 / Contact Details</h3>
+      <button class="modal-close" onclick="closeModal('contactDetailsModal')">✕</button>
+    </div>
+    <div id="contactDetailsContent">
+      <!-- Content loaded via JavaScript -->
+    </div>
+  </div>
+</div>
+
+<script>
+// View contact details
+async function viewContactDetails(contactId) {
+  try {
+    const res = await fetch(`/hanzen-admin/contact/${contactId}/details/`);
+    if (!res.ok) throw new Error('Failed to load');
+    const data = await res.json();
+    
+    let html = `
+      <div class="mb-3">
+        <strong>送信者 / Sender:</strong> ${data.name}<br>
+        <strong>メール / Email:</strong> <a href="mailto:${data.email}">${data.email}</a><br>
+        <strong>件名 / Subject:</strong> ${data.subject_display}<br>
+        <strong>送信日時 / Sent:</strong> ${data.created_at}<br>
+        <strong>状態 / Status:</strong> ${data.is_read ? '既読 / Read' : '未読 / Unread'}
+      </div>
+      <div class="mb-3">
+        <strong>メッセージ / Message:</strong>
+        <div style="background:#f8f9fa;padding:1rem;border-radius:4px;margin-top:.5rem;white-space:pre-wrap">${data.message}</div>
+      </div>`;
+    
+    document.getElementById('contactDetailsContent').innerHTML = html;
+    openModal('contactDetailsModal');
+    
+    // Auto-mark as read if viewing details
+    if (!data.is_read) {
+      await markAsRead(contactId, false);
+    }
+  } catch(e) {
+    showToast('エラー / Error', 'Failed to load contact details');
+  }
+}
+
+// Mark as read
+async function markAsRead(contactId, showToast = true) {
+  try {
+    const res = await fetch(`/hanzen-admin/contact/${contactId}/mark-read/`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': window.CSRF_TOKEN 
+      },
+      body: ''
+    });
+    const data = await res.json();
+    if (data.ok) {
+      // Update UI
+      const row = document.getElementById(`contact-row-${contactId}`);
+      if (row) {
+        row.style.background = '';
+        const statusCell = row.querySelector('td:nth-child(4) .avail-toggle');
+        if (statusCell) {
+          statusCell.style.background = 'rgba(40,167,69,.15)';
+          statusCell.style.color = 'var(--success)';
+          statusCell.innerHTML = '既読 / Read';
+        }
+        // Remove mark as read button
+        const markReadBtn = row.querySelector('button[onclick*="markAsRead"]');
+        if (markReadBtn) markReadBtn.remove();
+      }
+      if (showToast) showToast('既読にしました', 'Marked as read');
+    }
+  } catch(e) {
+    if (showToast) showToast('エラー / Error', 'Failed to mark as read');
+  }
+}
+</script>
+{% endblock %}

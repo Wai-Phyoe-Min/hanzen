@@ -1,0 +1,90 @@
+{% extends "restaurant/base.html" %}
+{% load i18n %}
+{% block title %}ログイン / Login — 花膳{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1200&q=80')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content fade-in">
+    <span class="section-tag" style="color:var(--aka)">
+      <span class="txt" data-ja="ログイン" data-en="Login">ログイン</span>
+    </span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="ログイン" data-en="Login">ログイン</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="会員ログイン" data-en="Member Login">Member Login</span>
+    </p>
+  </div>
+</div>
+
+<section style="padding:4rem 0;background:var(--shiro)">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-4 col-md-6">
+        <div class="auth-card fade-in">
+          <div class="auth-card-top">
+            <div class="auth-logo">花膳</div>
+            <p style="color:var(--smoke);font-size:.82rem;margin-top:.5rem" class="txt"
+               data-ja="お帰りなさいませ。ログインしてご予約を管理しましょう。"
+               data-en="Welcome back. Log in to manage your reservations.">
+              お帰りなさいませ。ログインしてご予約を管理しましょう。
+            </p>
+          </div>
+
+          <form method="post" class="auth-form">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label">
+                {% if field.name == 'username' %}
+                  <span class="txt" data-ja="ユーザー名" data-en="Username">ユーザー名</span>
+                {% elif field.name == 'password' %}
+                  <span class="txt" data-ja="パスワード" data-en="Password">パスワード</span>
+                {% else %}
+                  {{ field.label }}
+                {% endif %}
+              </label>
+              {{ field }}
+              {% if field.errors %}
+                {% for e in field.errors %}
+                  <div class="field-error">{{ e }}</div>
+                {% endfor %}
+              {% endif %}
+            </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+              <div class="field-error mb-3">
+                <span class="txt"
+                  data-ja="ユーザー名またはパスワードが正しくありません。"
+                  data-en="Incorrect username or password. Please try again.">
+                  {{ form.non_field_errors.0 }}
+                </span>
+              </div>
+            {% endif %}
+            <button type="submit" class="btn-submit">
+              <span class="txt" data-ja="ログイン" data-en="Login">ログイン</span>
+              <i class="fa-solid fa-arrow-right ms-2"></i>
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <p style="margin-bottom:.5rem">
+              <span class="txt" data-ja="まだ会員でない方は" data-en="Not a member yet?">まだ会員でない方は</span>
+              <a href="{% url 'restaurant:register' %}" style="color:var(--aka)">
+                <span class="txt" data-ja="こちらから会員登録" data-en="Register here">こちらから会員登録</span>
+              </a>
+            </p>
+            <p>
+              <a href="{% url 'restaurant:home' %}" style="color:var(--smoke);font-size:.78rem;text-decoration:none">
+                <i class="fa-solid fa-arrow-left fa-xs me-1"></i>
+                <span class="txt" data-ja="ホームに戻る" data-en="Back to Home">ホームに戻る</span>
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

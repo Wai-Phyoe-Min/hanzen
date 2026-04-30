@@ -1,0 +1,92 @@
+{% extends "restaurant/base.html" %}
+{% load i18n %}
+{% block title %}ご注文 / Order — 花膳 HANZEN{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('/media/site_images/order_details_img.jpg')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content">
+    <span class="section-tag txt" style="color:var(--aka)" data-ja="ご注文" data-en="Order">ご注文</span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="注文" data-en="Order">Order</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="注文を確定する前に、内容をご確認ください。" data-en="Please review your order before placing it.">Please review your order before placing it.</span>
+    </p>
+  </div>
+</div>
+
+<section style="padding:4rem 0;background:var(--shiro)">
+  <div class="container">
+    {% if cart_items %}
+    <div class="row gy-4">
+      <div class="col-lg-8">
+        <div class="cart-table-wrap">
+          <div class="cart-header-row">
+            <span class="txt" data-ja="商品" data-en="Item">商品</span>
+            <span class="txt" data-ja="単価" data-en="Price">単価</span>
+            <span class="txt" data-ja="数量" data-en="Qty">数量</span>
+            <span class="txt" data-ja="小計" data-en="Subtotal">小計</span>
+          </div>
+
+          {% for ci in cart_items %}
+          <div class="cart-row" id="order-row-{{ ci.item.pk }}">
+            <div class="cart-item-info">
+              <img src="{{ ci.item.image_url }}" alt="{{ ci.item.name_en }}" class="cart-img"/>
+              <div>
+                <div class="cart-name-jp">{{ ci.item.name_ja }}</div>
+                <div class="cart-name-en">{{ ci.item.name_en }}</div>
+              </div>
+            </div>
+            <div class="cart-unit-price">¥{{ ci.item.price|floatformat:0 }}</div>
+            <div class="cart-qty-control" style="justify-content:center">
+              <span class="qty-num">{{ ci.qty }}</span>
+            </div>
+            <div class="cart-sub">¥{{ ci.subtotal|floatformat:0 }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="cart-summary" id="orderSummary">
+          <h3 class="cart-summary-title txt" data-ja="ご注文内容" data-en="Order Summary">ご注文内容</h3>
+          <div class="cart-summary-row">
+            <span class="txt" data-ja="小計" data-en="Subtotal">小計</span>
+            <span id="orderTotal">¥{{ total|floatformat:0 }}</span>
+          </div>
+          <div class="cart-summary-total">
+            <span class="txt" data-ja="合計" data-en="Total">合計</span>
+            <span class="cart-total-price" id="orderGrandTotal">¥{{ total|floatformat:0 }}</span>
+          </div>
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-submit text-center text-decoration-none d-block mt-4">
+              <span class="txt" data-ja="注文を確定する" data-en="Place Order">注文を確定する</span>
+              <i class="fa-solid fa-arrow-right ms-2"></i>
+            </button>
+          </form>
+          {% if not user.is_authenticated %}
+          <p class="cart-login-hint txt" data-ja="注文履歴を保存したい場合はログインしてください。" data-en="Sign in to save your order history.">
+            注文履歴を保存したい場合はログインしてください。
+            <a href="{% url 'restaurant:login' %}" class="txt" data-ja="ログイン" data-en="Login">ログイン</a>
+          </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+      <i class="fa-solid fa-bowl-rice fa-3x mb-4" style="color:rgba(139,28,28,.2)"></i>
+      <h3 class="section-title-jp mb-2 txt" data-ja="カートは空です" data-en="Cart is Empty">カートは空です</h3>
+      <p class="txt" style="color:var(--smoke);margin-bottom:2rem" data-ja="メニューからお料理をお選びください。" data-en="Please choose dishes from our menu.">メニューからお料理をお選びください。</p>
+      <a href="{% url 'restaurant:menu' %}" class="btn-gold">
+        <span class="txt" data-ja="メニューを見る" data-en="View Menu">メニューを見る</span>
+        <i class="fa-solid fa-arrow-right fa-sm ms-2"></i>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

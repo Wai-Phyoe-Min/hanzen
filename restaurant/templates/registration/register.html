@@ -1,0 +1,184 @@
+{% extends "restaurant/base.html" %}
+{% load i18n %}
+{% block title %}会員登録 / Register — 花膳{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1547592180-85f173990554?w=1200&q=80')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content fade-in">
+    <span class="section-tag" style="color:var(--aka)">
+      <span class="txt" data-ja="会員登録" data-en="Register">会員登録</span>
+    </span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="会員登録" data-en="Register">会員登録</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="アカウントを作成" data-en="Create Your Account">Create Your Account</span>
+    </p>
+  </div>
+</div>
+
+<section style="padding:4rem 0;background:var(--shiro)">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-5 col-md-8">
+        <div class="auth-card fade-in">
+          <div class="auth-card-top">
+            <div class="auth-logo">花膳</div>
+            <p style="color:var(--smoke);font-size:.82rem;margin-top:.5rem" class="txt"
+               data-ja="会員登録で予約履歴の管理、優先予約などの特典をご利用いただけます。"
+               data-en="Register to manage reservation history and enjoy member-exclusive benefits.">
+              会員登録で予約履歴の管理、優先予約などの特典をご利用いただけます。
+            </p>
+          </div>
+
+          <form method="post" class="auth-form">
+            {% csrf_token %}
+            <div class="row g-3">
+              {% for field in form %}
+                <div class="col-{% if field.name == 'username' or field.name == 'email' or field.name == 'password1' or field.name == 'password2' %}12{% else %}6{% endif %}">
+                  <label class="form-label">
+                    {% if field.name == 'username' %}
+                      <span class="txt" data-ja="ユーザー名" data-en="Username">ユーザー名</span>
+                    {% elif field.name == 'first_name' %}
+                      <span class="txt" data-ja="名前（名）" data-en="First Name">名前（名）</span>
+                    {% elif field.name == 'last_name' %}
+                      <span class="txt" data-ja="名前（姓）" data-en="Last Name">名前（姓）</span>
+                    {% elif field.name == 'email' %}
+                      <span class="txt" data-ja="メールアドレス" data-en="Email Address">メールアドレス</span>
+                    {% elif field.name == 'password1' %}
+                      <span class="txt" data-ja="パスワード" data-en="Password">パスワード</span>
+                    {% elif field.name == 'password2' %}
+                      <span class="txt" data-ja="パスワード（確認）" data-en="Confirm Password">パスワード（確認）</span>
+                    {% else %}
+                      {{ field.label }}
+                    {% endif %}
+                  </label>
+                  
+                  {% if field.name == 'password1' or field.name == 'password2' %}
+                    {# Password fields with toggle - wrapper as a column, not flex #}
+                    <div class="pw-input-wrap">
+                      {{ field }}
+                      <button type="button" class="pw-toggle" onclick="togglePw('{{ field.id_for_label }}', this)">
+                        <i class="fa-regular fa-eye"></i>
+                      </button>
+                    </div>
+                    
+                    {# Errors displayed BELOW the input wrapper #}
+                    {% if field.errors %}
+                      {% for e in field.errors %}
+                        <div class="field-error">{{ e }}</div>
+                      {% endfor %}
+                    {% endif %}
+                    
+                    {# Help text for password1 #}
+                    {% if field.help_text and field.name == 'password1' %}
+                      <div style="font-size:.7rem;color:var(--smoke);margin-top:.3rem;line-height:1.6">
+                        <span class="txt"
+                          data-ja="8文字以上・数字のみは不可・よく使われるパスワードは不可"
+                          data-en="At least 8 characters. Cannot be entirely numeric or too common.">
+                          8文字以上・数字のみは不可・よく使われるパスワードは不可
+                        </span>
+                      </div>
+                    {% endif %}
+                  {% else %}
+                    {# Regular fields - display normally #}
+                    {{ field }}
+                    {% if field.errors %}
+                      {% for e in field.errors %}
+                        <div class="field-error">{{ e }}</div>
+                      {% endfor %}
+                    {% endif %}
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+
+            <button type="submit" class="btn-submit mt-4">
+              <span class="txt" data-ja="会員登録する" data-en="Create Account">会員登録する</span>
+              <i class="fa-solid fa-arrow-right ms-2"></i>
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <p style="margin-bottom:.5rem">
+              <span class="txt" data-ja="すでに会員の方は" data-en="Already a member?">すでに会員の方は</span>
+              <a href="{% url 'restaurant:login' %}" style="color:var(--aka)">
+                <span class="txt" data-ja="こちらからログイン" data-en="Login here">こちらからログイン</span>
+              </a>
+            </p>
+            <p>
+              <a href="{% url 'restaurant:home' %}" style="color:var(--smoke);font-size:.78rem;text-decoration:none">
+                <i class="fa-solid fa-arrow-left fa-xs me-1"></i>
+                <span class="txt" data-ja="ホームに戻る" data-en="Back to Home">ホームに戻る</span>
+              </a>
+            </p>
+          </div>
+        </div>
+
+        <!-- Terms notice -->
+        <p class="fade-in delay-2" style="text-align:center;font-size:.72rem;color:var(--smoke);margin-top:1rem;line-height:1.8">
+          <span class="txt"
+            data-ja="会員登録することで、当店の"
+            data-en="By registering, you agree to our">
+            会員登録することで、当店の
+          </span>
+          <a href="{% url 'restaurant:terms' %}" style="color:var(--aka)">
+            <span class="txt" data-ja="利用規約" data-en="Terms of Service">利用規約</span>
+          </a>
+          <span class="txt" data-ja="および" data-en="and">および</span>
+          <a href="{% url 'restaurant:privacy' %}" style="color:var(--aka)">
+            <span class="txt" data-ja="プライバシーポリシー" data-en="Privacy Policy">プライバシーポリシー</span>
+          </a>
+          <span class="txt" data-ja="に同意したものとみなします。" data-en=".">に同意したものとみなします。</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const pw1 = document.getElementById('id_password1');
+  const pw2 = document.getElementById('id_password2');
+
+  if (pw1) {
+    // Inject strength meter after password1's parent container
+    const col = pw1.closest('.col-12');
+    const strengthWrap = document.createElement('div');
+    strengthWrap.id = 'regPwStrength';
+    strengthWrap.className = 'pw-strength-wrap';
+    strengthWrap.style.display = 'none';
+    strengthWrap.innerHTML = '<div class="pw-strength-bar-track"><div class="pw-strength-bar" id="regPwBar"></div></div><span class="pw-strength-label" id="regPwLabel"></span>';
+    col.appendChild(strengthWrap);
+
+    pw1.oninput = () => checkStrength(pw1.value, 'regPwStrength', 'regPwBar', 'regPwLabel');
+  }
+
+  if (pw2) {
+    // Inject match message after password2's parent container
+    const col = pw2.closest('.col-12');
+    const matchMsg = document.createElement('div');
+    matchMsg.id = 'regPwMatch';
+    matchMsg.className = 'pw-match-msg';
+    col.appendChild(matchMsg);
+
+    pw2.oninput = () => {
+      const p1 = document.getElementById('id_password1')?.value || '';
+      const p2 = pw2.value;
+      const msg = document.getElementById('regPwMatch');
+      if (!p2) { msg.textContent = ''; return; }
+      if (p1 === p2) { 
+        msg.textContent = '✓ 一致 / Match'; 
+        msg.className = 'pw-match-msg pw-match-ok'; 
+      } else { 
+        msg.textContent = '✗ 不一致 / Mismatch'; 
+        msg.className = 'pw-match-msg pw-match-err'; 
+      }
+    };
+  }
+});
+</script>
+{% endblock %}

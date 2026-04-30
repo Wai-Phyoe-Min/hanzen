@@ -1,0 +1,233 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="{{ preferred_lang|default:LANGUAGE_CODE|default:'ja' }}">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="{% block meta_desc %}花膳 Hanzen — 東京銀座の本格日本料理。Authentic Japanese fine dining in Ginza, Tokyo.{% endblock %}"/>
+  <title>{% block title %}花膳 HANZEN{% endblock %} | 本格日本料理 · Fine Japanese Cuisine</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="{% static 'restaurant/css/main.css' %}"/>
+  {% block extra_css %}{% endblock %}
+</head>
+<body data-lang="{{ preferred_lang|default:LANGUAGE_CODE|default:'ja' }}" class="{% if 'dash-layout' in request.path or 'hanzen-admin' in request.path or page == 'dashboard' %}dashboard-page{% endif %}{% if page and page != 'dashboard' %} page-{{ page }}{% endif %}">
+
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Seasonal Banner -->
+{% if page != 'dashboard' and page != 'admin_dashboard' %}
+<div id="seasonal-banner" {% if not site_settings.banner_active %}data-closed="1"{% endif %}>
+  🌸 <span class="txt" data-ja="{{ site_settings.seasonal_banner_text_ja|default:'春の特別メニュー 開始' }}" data-en="{{ site_settings.seasonal_banner_text_en|default:'Spring Special Menu Now Available' }}">{{ site_settings.seasonal_banner_text_ja|default:'春の特別メニュー 開始' }}</span>
+  &nbsp;·&nbsp;
+  <span class="txt" data-ja="{{ site_settings.seasonal_banner_text_en|default:'Spring Special Menu Now Available' }}" data-en="{{ site_settings.seasonal_banner_text_ja|default:'春の特別メニュー 開始' }}">{{ site_settings.seasonal_banner_text_en|default:'Spring Special Menu Now Available' }}</span>
+  &nbsp;
+  <button class="banner-close" onclick="closeBanner()" aria-label="close">✕</button>
+</div>
+{% endif %}
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg {% if page == 'dashboard' or page == 'admin_dashboard' or page == 'hours' or page == 'reservation_success' %}dashboard-nav{% endif %}{% if page == 'dashboard' or page == 'admin_dashboard' %} no-banner{% endif %}" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'restaurant:home' %}">
+      花膳
+      <span class="brand-sub">HANZEN · 本格日本料理</span>
+    </a>
+
+    <div class="d-flex align-items-center gap-3 d-lg-none">
+      <button class="lang-toggle" id="langBtnMobile" onclick="toggleLang()">EN</button>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-label="Toggle">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        <li class="nav-item">
+          <a class="nav-link {% if page == 'about' %}active-link{% endif %}" href="{% url 'restaurant:about' %}">
+            <span class="txt" data-ja="について" data-en="About">について</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if page == 'menu' %}active-link{% endif %}" href="{% url 'restaurant:menu' %}">
+            <span class="txt" data-ja="メニュー" data-en="Menu">メニュー</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if page == 'gallery' %}active-link{% endif %}" href="{% url 'restaurant:gallery' %}">
+            <span class="txt" data-ja="ギャラリー" data-en="Gallery">ギャラリー</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if page == 'contact' %}active-link{% endif %}" href="{% url 'restaurant:contact' %}">
+            <span class="txt" data-ja="お問い合わせ" data-en="Contact">お問い合わせ</span>
+          </a>
+        </li>
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link {% if page == 'dashboard' or page == 'admin_dashboard' %}active-link{% endif %}" href="{% if user.is_staff or user.is_superuser %}{% url 'restaurant:admin_dashboard' %}{% else %}{% url 'restaurant:dashboard' %}{% endif %}">
+            <i class="fa-solid fa-user fa-xs me-1"></i>
+            <span class="txt" data-ja="{{ user.first_name|default:user.username }}" data-en="{{ user.first_name|default:user.username }}">{{ user.first_name|default:user.username }}</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'restaurant:login' %}">
+            <span class="txt" data-ja="ログイン" data-en="Login">ログイン</span>
+          </a>
+        </li>
+        {% endif %}
+        <li class="nav-item ms-lg-2">
+          <a class="btn-gold" href="{% url 'restaurant:reservation' %}">
+            <span class="txt" data-ja="ご予約" data-en="Reserve">ご予約</span>
+            <i class="fa-solid fa-arrow-right fa-sm"></i>
+          </a>
+        </li>
+      </ul>
+      <div class="ms-3 d-none d-lg-flex align-items-center gap-2">
+        <button class="lang-toggle" id="langBtnDesktop" onclick="toggleLang()">EN</button>
+        <a href="{% url 'restaurant:cart' %}" class="cart-nav-icon" title="Cart">
+          <i class="fa-solid fa-bowl-rice"></i>
+          <span class="cart-nav-badge" id="navCartCount">{{ cart_count|default:0 }}</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MESSAGES -->
+{% if messages %}
+<div class="messages-wrap">
+  {% for msg in messages %}
+  <div class="alert-msg alert-{{ msg.tags }}">{{ msg }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- MAIN CONTENT -->
+{% block content %}{% endblock %}
+
+<!-- FOOTER -->
+<footer id="footer">
+  <div class="container">
+    <div class="row gy-5">
+      <div class="col-lg-4">
+        <div class="footer-logo">花膳</div>
+        <div class="footer-logo-sub">Hanzen — Fine Japanese Cuisine</div>
+        <p class="footer-desc txt" data-ja="1987年より、伝統と革新の狭間で日本の美食文化を守り続けています。" data-en="Since 1987, we have safeguarded Japan's culinary heritage at the intersection of tradition and innovation.">1987年より、伝統と革新の狭間で日本の美食文化を守り続けています。</p>
+        <div class="footer-social">
+          <a href="https://www.instagram.com/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://x.com/" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="https://www.facebook.com/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.line.me/" target="_blank" aria-label="LINE"><i class="fab fa-line"></i></a>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-2">
+        <div class="footer-heading txt" data-ja="ナビゲーション" data-en="Navigation">ナビゲーション</div>
+        <a class="footer-link" href="{% url 'restaurant:about' %}"><span class="txt" data-ja="私たちについて" data-en="About">私たちについて</span></a>
+        <a class="footer-link" href="{% url 'restaurant:menu' %}"><span class="txt" data-ja="メニュー" data-en="Menu">メニュー</span></a>
+        <a class="footer-link" href="{% url 'restaurant:gallery' %}"><span class="txt" data-ja="ギャラリー" data-en="Gallery">ギャラリー</span></a>
+        <a class="footer-link" href="{% url 'restaurant:contact' %}"><span class="txt" data-ja="お問い合わせ" data-en="Contact">お問い合わせ</span></a>
+        <a class="footer-link" href="{% url 'restaurant:reservation' %}"><span class="txt" data-ja="ご予約" data-en="Reservation">ご予約</span></a>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="footer-heading txt" data-ja="営業時間" data-en="Hours">営業時間</div>
+        {% if business_hours_footer_today %}
+          {% if business_hours_footer_today.is_closed %}
+            <p class="footer-link" style="cursor:default"><span class="txt" data-ja="本日: 定休日" data-en="Today: Closed">本日: 定休日</span></p>
+          {% else %}
+            <p class="footer-link" style="cursor:default">
+              <span class="txt"
+                data-ja="本日 {{ business_hours_footer_today.lunch_open|time:'H:i' }}〜{{ business_hours_footer_today.lunch_close|time:'H:i' }} / {{ business_hours_footer_today.dinner_open|time:'H:i' }}〜{{ business_hours_footer_today.dinner_close|time:'H:i' }}"
+                data-en="Today {{ business_hours_footer_today.lunch_open|time:'H:i' }}–{{ business_hours_footer_today.lunch_close|time:'H:i' }} / {{ business_hours_footer_today.dinner_open|time:'H:i' }}–{{ business_hours_footer_today.dinner_close|time:'H:i' }}">
+                本日 {{ business_hours_footer_today.lunch_open|time:'H:i' }}〜{{ business_hours_footer_today.lunch_close|time:'H:i' }} / {{ business_hours_footer_today.dinner_open|time:'H:i' }}〜{{ business_hours_footer_today.dinner_close|time:'H:i' }}
+              </span>
+            </p>
+          {% endif %}
+          <p class="footer-link" style="cursor:default;margin-top:.4rem">
+            <a href="{% url 'restaurant:hours' %}" class="txt" style="color:var(--gold);text-decoration:none;" data-ja="詳細を見る" data-en="View full hours">詳細を見る</a>
+          </p>
+        {% else %}
+          <p class="footer-link" style="cursor:default"><span class="txt" data-ja="本日の営業時間は現在取得できません" data-en="Today's hours are unavailable">本日の営業時間は現在取得できません</span></p>
+          <p class="footer-link" style="cursor:default;margin-top:.4rem">
+            <a href="{% url 'restaurant:hours' %}" class="txt" style="color:var(--gold);text-decoration:none;" data-ja="営業時間の詳細を見る" data-en="View full hours">営業時間の詳細を見る</a>
+          </p>
+        {% endif %}
+        <p class="footer-link" style="cursor:default;margin-top:.5rem">
+          <a href="tel:03-1234-5678" style="color:var(--gold);text-decoration:none;">03-1234-5678</a>
+        </p>
+      </div>
+      <div class="col-lg-3">
+        <div class="footer-heading txt" data-ja="メールマガジン" data-en="Newsletter">メールマガジン</div>
+        <p class="footer-desc txt" data-ja="季節のメニューや特別イベントをいち早くお届けします。" data-en="Be first to know about seasonal menus and exclusive events." style="margin-bottom:1rem">季節のメニューや特別イベントをいち早くお届けします。</p>
+        <form id="newsletterForm" onsubmit="subscribeNewsletter(event)">
+          {% csrf_token %}
+          <div style="display:flex">
+            <input type="email" name="email" class="newsletter-input" placeholder="email@example.com" required/>
+            <button type="submit" class="newsletter-btn">
+              <span class="txt" data-ja="登録" data-en="Subscribe">登録</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span class="footer-copy">© <span id="copyrightYear"></span> 花膳 Hanzen. All Rights Reserved. Created by Wai Phyoe Min. Version 1.0</span>
+      <span class="footer-copy">
+        <a href="{% url 'restaurant:privacy' %}" style="color:inherit;text-decoration:none" class="txt" data-ja="プライバシーポリシー" data-en="Privacy Policy">プライバシーポリシー</a>
+        &nbsp;|&nbsp;
+        <a href="{% url 'restaurant:terms' %}" style="color:inherit;text-decoration:none" class="txt" data-ja="利用規約" data-en="Terms of Service">利用規約</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast Notification -->
+<div id="toast">
+  <div class="toast-jp" id="toastJp">注文を追加しました</div>
+  <div class="toast-en" id="toastEn">Added to your order</div>
+</div>
+
+<!-- Scroll To Top -->
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fa-solid fa-arrow-up"></i>
+</button>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Main JS -->
+<script src="{% static 'restaurant/js/main.js' %}"></script>
+<!-- CSRF helper for AJAX -->
+<script>
+  function getCookie(name) {
+    const value = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+    return value ? decodeURIComponent(value.split('=')[1]) : '';
+  }
+
+  window.CSRF_TOKEN = window.CSRF_TOKEN ||
+    (('{{ csrf_token }}' !== 'NOTPROVIDED' && '{{ csrf_token }}' !== '')
+      ? '{{ csrf_token }}'
+      : getCookie('csrftoken'));
+
+  window.URLS = window.URLS || {
+    cartAdd:    '{% url "restaurant:cart_add" %}',
+    cartUpdate: '{% url "restaurant:cart_update" %}',
+    cartRemove: '{% url "restaurant:cart_remove" %}',
+    cartClear:  '{% url "restaurant:cart_clear" %}',
+    newsletter: '{% url "restaurant:newsletter_subscribe" %}',
+    apiMenu:    '{% url "restaurant:api_menu" %}',
+    apiAvail:   '{% url "restaurant:api_availability" %}',
+  };
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

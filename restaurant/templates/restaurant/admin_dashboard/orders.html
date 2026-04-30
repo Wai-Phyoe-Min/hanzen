@@ -1,0 +1,217 @@
+{% extends "restaurant/base.html" %}
+{% load humanize %}
+{% block title %}注文管理 / Orders — 花膳 Admin{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/admin_dashboard/_sidebar.html" %}
+  <div class="dash-main">
+
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">注文管理 <span class="admin-en-label">/ Order Management</span></h1>
+        <p class="dash-subtitle">{{ orders.count }} 件 / {{ orders.count }} orders</p>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="d-flex gap-3 mb-3 align-items-center">
+      <form method="get" class="d-flex gap-2" style="flex:1;max-width:400px">
+        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="検索 / Search orders..." 
+               class="form-control" style="font-size:.85rem"/>
+        <button type="submit" class="btn-submit" style="padding:.5rem 1rem;font-size:.8rem">
+          <i class="fa-solid fa-search"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="d-flex gap-2 flex-wrap mb-3">
+      <a href="{% url 'restaurant:admin_orders' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if not request.GET.status %}active{% endif %}">全て / All</a>
+      <a href="?status=open{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if request.GET.status == 'open' %}active{% endif %}">未確定 / Open</a>
+      <a href="?status=submitted{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if request.GET.status == 'submitted' %}active{% endif %}">送信済 / Submitted</a>
+      <a href="?status=kitchen{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if request.GET.status == 'kitchen' %}active{% endif %}">調理中 / In Kitchen</a>
+      <a href="?status=ready{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if request.GET.status == 'ready' %}active{% endif %}">準備完了 / Ready</a>
+      <a href="?status=done{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if request.GET.status == 'done' %}active{% endif %}">完了 / Done</a>
+      <a href="?status=cancelled{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if request.GET.status == 'cancelled' %}active{% endif %}">キャンセル / Cancelled</a>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>注文ID <span class="admin-th-en">/ Order ID</span></th>
+              <th>顧客 <span class="admin-th-en">/ Customer</span></th>
+              <th>商品 <span class="admin-th-en">/ Items</span></th>
+              <th>合計 <span class="admin-th-en">/ Total</span></th>
+              <th>状態 <span class="admin-th-en">/ Status</span></th>
+              <th>日時 <span class="admin-th-en">/ Date</span></th>
+              <th>操作 <span class="admin-th-en">/ Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr id="order-row-{{ order.pk }}">
+              <td style="font-family:var(--font-en);font-weight:600">#{{ order.pk }}</td>
+              <td>
+                {% if order.user %}
+                  <div style="font-weight:600">{{ order.user.get_full_name|default:order.user.username }}</div>
+                  <div style="font-size:.75rem;color:var(--smoke)">{{ order.user.email }}</div>
+                {% else %}
+                  <span style="color:var(--smoke)">ゲスト / Guest</span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="font-size:.8rem">
+                  {% for line in order.items.all %}
+                    {{ line.menu_item.name_ja }} x{{ line.quantity }}{% if not forloop.last %}, {% endif %}
+                  {% empty %}
+                    なし / None
+                  {% endfor %}
+                </div>
+                <div style="font-size:.7rem;color:var(--smoke);margin-top:.2rem">
+                  {{ order.total_items }} 点 / {{ order.total_items }} items
+                </div>
+              </td>
+              <td style="font-family:var(--font-en);font-weight:600">¥{{ order.total|intcomma }}</td>
+              <td>
+                <select class="form-control form-control-sm" style="width:auto;font-size:.75rem"
+                        onchange="updateOrderStatus({{ order.pk }}, this.value)">
+                  {% for status_key, status_label in order.STATUS %}
+                  <option value="{{ status_key }}" {% if order.status == status_key %}selected{% endif %}>
+                    {{ status_label }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td style="font-size:.8rem">
+                <div>{{ order.created_at|date:"Y/m/d" }}</div>
+                <div style="color:var(--smoke);font-size:.7rem">{{ order.created_at|time:"H:i" }}</div>
+              </td>
+              <td>
+                <button class="admin-action-btn" onclick="viewOrderDetails({{ order.pk }})" title="詳細 / Details">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" style="text-align:center;padding:3rem;color:var(--smoke)">
+                <i class="fa-regular fa-shopping-cart fa-2x mb-3" style="display:block;opacity:.25"></i>
+                注文がありません / No orders yet
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Order Details Modal -->
+<div id="orderDetailsModal" class="modal-overlay" style="display:none">
+  <div class="modal-box" style="max-width:700px">
+    <div class="modal-header">
+      <h3 class="modal-title">注文詳細 / Order Details — #<span id="orderDetailId"></span></h3>
+      <button class="modal-close" onclick="closeModal('orderDetailsModal')">✕</button>
+    </div>
+    <div id="orderDetailsContent">
+      <!-- Content loaded via JavaScript -->
+    </div>
+  </div>
+</div>
+
+<script>
+// Update order status
+async function updateOrderStatus(orderId, newStatus) {
+  try {
+    const res = await fetch(`/hanzen-admin/orders/${orderId}/status/`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': window.CSRF_TOKEN 
+      },
+      body: `status=${newStatus}`
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast('ステータスを更新しました', 'Status updated');
+    } else {
+      showToast('エラー / Error', 'Failed to update status');
+    }
+  } catch(e) {
+    showToast('エラー / Error', 'Something went wrong');
+  }
+}
+
+// View order details
+async function viewOrderDetails(orderId) {
+  try {
+    const res = await fetch(`/hanzen-admin/orders/${orderId}/details/`);
+    if (!res.ok) throw new Error('Failed to load');
+    const data = await res.json();
+    
+    let html = `
+      <div class="mb-3">
+        <strong>顧客 / Customer:</strong> ${data.customer}<br>
+        <strong>メール / Email:</strong> ${data.email}<br>
+        <strong>注文日時 / Order Date:</strong> ${data.created_at}<br>
+        <strong>状態 / Status:</strong> ${data.status}
+      </div>
+      <div class="mb-3">
+        <strong>注文商品 / Order Items:</strong>
+        <table class="dash-table" style="margin-top:.5rem">
+          <thead>
+            <tr>
+              <th>商品 / Item</th>
+              <th>数量 / Qty</th>
+              <th>単価 / Price</th>
+              <th>小計 / Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>`;
+    
+    data.items.forEach(item => {
+      html += `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:.75rem">
+              ${item.image_url ? `<img src="${item.image_url}" alt="${item.name_en}" style="width:50px;height:50px;object-fit:cover;border-radius:8px">` : ''}
+              <div>
+                <div style="font-weight:600">${item.name_ja}</div>
+                <div style="font-size:.85rem;color:var(--smoke)">${item.name_en}</div>
+              </div>
+            </div>
+          </td>
+          <td style="text-align:center">${item.quantity}</td>
+          <td style="font-family:var(--font-en)">¥${item.unit_price.toLocaleString()}</td>
+          <td style="font-family:var(--font-en);font-weight:600">¥${item.subtotal.toLocaleString()}</td>
+        </tr>`;
+    });
+    
+    html += `
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="3" style="text-align:right">合計 / Total:</th>
+              <th style="font-family:var(--font-en);font-weight:600">¥${data.total.toLocaleString()}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>`;
+    
+    if (data.note) {
+      html += `<div class="mb-3"><strong>備考 / Note:</strong><br>${data.note}</div>`;
+    }
+    
+    document.getElementById('orderDetailId').textContent = orderId;
+    document.getElementById('orderDetailsContent').innerHTML = html;
+    openModal('orderDetailsModal');
+  } catch(e) {
+    showToast('エラー / Error', 'Failed to load order details');
+  }
+}
+</script>
+{% endblock %}

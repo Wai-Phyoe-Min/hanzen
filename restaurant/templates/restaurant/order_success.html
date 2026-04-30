@@ -1,0 +1,33 @@
+{% extends "restaurant/base.html" %}
+{% load i18n %}
+{% block title %}ご注文完了 / Order Complete — 花膳 HANZEN{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('/media/site_images/order_img.jfif')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content">
+    <span class="section-tag txt" style="color:var(--aka)" data-ja="ご注文完了" data-en="Order Complete">ご注文完了</span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="ご注文完了" data-en="Order Complete">Order Complete</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="ご注文ありがとうございます。" data-en="Thank you for your order.">Thank you for your order.</span>
+    </p>
+  </div>
+</div>
+
+<section class="section section-sm" style="padding:4rem 0;background:var(--shiro)">
+  <div class="container text-center">
+    <div class="order-success-card">
+      <i class="fa-solid fa-check-circle fa-3x mb-4" style="color:var(--aka)"></i>
+      <h2 class="section-title-jp mb-3" data-ja="ご注文が完了しました" data-en="Your order is complete">ご注文が完了しました</h2>
+      <p class="txt mb-4" data-ja="ご注文番号は {{ order.pk }} です。ご確認ください。" data-en="Your order number is {{ order.pk }}. Please keep it for reference.">ご注文番号は {{ order.pk }} です。ご確認ください。</p>
+      <a href="{% url 'restaurant:home' %}" class="btn-gold">
+        <span class="txt" data-ja="ホームに戻る" data-en="Return Home">ホームに戻る</span>
+        <i class="fa-solid fa-arrow-right fa-sm ms-2"></i>
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

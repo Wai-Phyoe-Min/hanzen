@@ -1,0 +1,138 @@
+{% extends "restaurant/base.html" %}
+{% block title %}予約管理 / Reservations — 花膳 Admin{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/admin_dashboard/_sidebar.html" %}
+  <div class="dash-main">
+
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">
+          予約管理
+          <span style="font-size:.55em;color:var(--smoke);font-family:var(--font-en);font-style:italic"> Reservation Management</span>
+        </h1>
+        <p class="dash-subtitle">
+          全 {{ reservations.count }} 件
+          <span style="font-size:.85em;color:var(--smoke)"> / {{ reservations.count }} total</span>
+        </p>
+      </div>
+      <div class="d-flex gap-2 flex-wrap align-items-center">
+        <a href="?status=" class="admin-filter-btn {% if not status_filter %}active{% endif %}">
+          全て <span style="font-size:.8em;opacity:.7">/ All</span>
+        </a>
+        <a href="?status=pending" class="admin-filter-btn {% if status_filter == 'pending' %}active{% endif %}">
+          確認待ち <span style="font-size:.8em;opacity:.7">/ Pending</span>
+        </a>
+        <a href="?status=confirmed" class="admin-filter-btn {% if status_filter == 'confirmed' %}active{% endif %}">
+          確認済み <span style="font-size:.8em;opacity:.7">/ Confirmed</span>
+        </a>
+        <a href="?status=completed" class="admin-filter-btn {% if status_filter == 'completed' %}active{% endif %}">
+          来店済み <span style="font-size:.8em;opacity:.7">/ Completed</span>
+        </a>
+        <a href="?status=cancelled" class="admin-filter-btn {% if status_filter == 'cancelled' %}active{% endif %}">
+          キャンセル <span style="font-size:.8em;opacity:.7">/ Cancelled</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th># <span class="admin-th-en">ID</span></th>
+              <th>名前 <span class="admin-th-en">Name</span></th>
+              <th>日付 <span class="admin-th-en">Date</span></th>
+              <th>時間 <span class="admin-th-en">Time</span></th>
+              <th>人数 <span class="admin-th-en">Guests</span></th>
+              <th>コース <span class="admin-th-en">Course</span></th>
+              <th>電話 <span class="admin-th-en">Phone</span></th>
+              <th>ステータス <span class="admin-th-en">Status</span></th>
+              <th>操作 <span class="admin-th-en">Action</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for res in reservations %}
+            <tr id="row-{{ res.pk }}">
+              <td style="color:var(--smoke);font-family:var(--font-en)">#{{ res.pk }}</td>
+              <td>
+                <strong>{{ res.name }}</strong>
+                <br>
+                <small style="color:var(--smoke)">{{ res.email }}</small>
+              </td>
+              <td>{{ res.date }}</td>
+              <td>{{ res.time }}</td>
+              <td>{{ res.party_size }}名</td>
+              <td>{{ res.course.name_ja|default:"—" }}</td>
+              <td>{{ res.phone }}</td>
+              <td>
+                <span class="res-status-badge status-{{ res.status }}" id="badge-{{ res.pk }}">
+                  {{ res.get_status_display }}
+                </span>
+              </td>
+              <td>
+                <select onchange="updateResStatus({{ res.pk }}, this.value)" class="admin-select">
+                  <option value="pending"   {% if res.status == 'pending'   %}selected{% endif %}>確認待ち / Pending</option>
+                  <option value="confirmed" {% if res.status == 'confirmed' %}selected{% endif %}>確認済み / Confirmed</option>
+                  <option value="completed" {% if res.status == 'completed' %}selected{% endif %}>来店済み / Completed</option>
+                  <option value="cancelled" {% if res.status == 'cancelled' %}selected{% endif %}>キャンセル / Cancelled</option>
+                </select>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="9" style="text-align:center;color:var(--smoke);padding:3rem 1rem">
+                <i class="fa-regular fa-calendar-xmark fa-2x mb-3" style="display:block;opacity:.25"></i>
+                予約が見つかりませんでした / No reservations found
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function updateResStatus(pk, status) {
+  try {
+    const formData = new URLSearchParams();
+    formData.append('status', status);
+    
+    const res = await fetch(`/hanzen-admin/reservations/${pk}/update/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': window.CSRF_TOKEN,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: formData.toString()
+    });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    
+    const data = await res.json();
+    
+    if (data.ok) {
+      const badge = document.getElementById('badge-' + pk);
+      if (badge) {
+        badge.textContent = data.status_display;
+        badge.className = `res-status-badge status-${data.status}`;
+      }
+      showToast('ステータスを更新しました', 'Status updated successfully');
+    } else {
+      showToast('エラーが発生しました', 'An error occurred');
+    }
+  } catch (e) {
+    console.error('Update status error:', e);
+    showToast('エラーが発生しました', 'An error occurred');
+  }
+}
+</script>
+{% endblock %}

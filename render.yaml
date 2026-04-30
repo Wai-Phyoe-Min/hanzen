@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: hanzen
+    env: python
+    region: singapore                      
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    startCommand: gunicorn hanzen.wsgi:application --log-file -
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: false
+      - key: WEB_CONCURRENCY
+        value: 4
+    autoDeploy: true                       

@@ -1,0 +1,187 @@
+{% extends "restaurant/base.html" %}
+{% block title %}会員管理 / Users — 花膳 Admin{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/admin_dashboard/_sidebar.html" %}
+  <div class="dash-main">
+
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">会員管理 <span class="admin-en-label">/ User Management</span></h1>
+        <p class="dash-subtitle">{{ users.count }} 名 / {{ users.count }} members</p>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="d-flex gap-3 mb-3 align-items-center">
+      <form method="get" class="d-flex gap-2" style="flex:1;max-width:400px">
+        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="検索 / Search users..." 
+               class="form-control" style="font-size:.85rem"/>
+        <button type="submit" class="btn-submit" style="padding:.5rem 1rem;font-size:.8rem">
+          <i class="fa-solid fa-search"></i>
+        </button>
+      </form>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>会員 <span class="admin-th-en">/ Member</span></th>
+              <th>メール <span class="admin-th-en">/ Email</span></th>
+              <th>電話 <span class="admin-th-en">/ Phone</span></th>
+              <th>言語 <span class="admin-th-en">/ Lang</span></th>
+              <th>登録日 <span class="admin-th-en">/ Joined</span></th>
+              <th>予約 <span class="admin-th-en">/ Res.</span></th>
+              <th>権限 <span class="admin-th-en">/ Role</span></th>
+              <th>操作 <span class="admin-th-en">/ Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr id="user-row-{{ u.pk }}">
+              <td>
+                <div class="admin-user-row" style="padding:0;border:none">
+                  <div class="admin-user-avatar">{{ u.first_name|first|default:u.username|first|upper }}</div>
+                  <div>
+                    <div style="font-weight:600;font-size:.85rem">{{ u.get_full_name|default:u.username }}</div>
+                    <div style="font-size:.72rem;color:var(--smoke)">@{{ u.username }}</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-size:.82rem">{{ u.email }}</td>
+              <td style="font-size:.82rem">{{ u.profile.phone|default:"—" }}</td>
+              <td style="font-size:.78rem">{% if u.profile.preferred_lang == 'ja' %}🇯🇵{% else %}🇬🇧{% endif %}</td>
+              <td style="font-size:.8rem">{{ u.date_joined|date:"Y/m/d" }}</td>
+              <td style="text-align:center;font-family:var(--font-en);font-weight:600;color:var(--aka)">{{ u.reservations.count }}</td>
+              <td>
+                {% if u.is_superuser %}
+                  <span class="avail-toggle" style="background:rgba(139,28,28,.15);color:var(--aka)">Super</span>
+                {% elif u.is_staff %}
+                  <span class="avail-toggle avail-on" id="role-{{ u.pk }}">Staff</span>
+                {% else %}
+                  <span class="avail-toggle" style="background:rgba(200,144,58,.1);color:var(--ki)" id="role-{{ u.pk }}">会員</span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+                  {% if not u.is_superuser %}
+                  <button class="admin-action-btn" onclick="toggleStaff({{ u.pk }}, '{{ u.get_full_name|default:u.username }}')"
+                          {% if u.is_superuser %}disabled{% endif %}>
+                    <i class="fa-solid fa-user-shield"></i>
+                    {% if u.is_staff %}降格{% else %}Staff{% endif %}
+                  </button>
+                  <button class="admin-action-btn admin-del-action" onclick="confirmDeleteUser({{ u.pk }}, '{{ u.get_full_name|default:u.username }}')"
+                          {% if u == request.user %}disabled title="Cannot delete yourself"{% endif %}>
+                    <i class="fa-solid fa-user-xmark"></i> 削除
+                  </button>
+                  {% else %}
+                  <span style="font-size:.72rem;color:var(--smoke);padding:.3rem .5rem">保護 / Protected</span>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE USER CONFIRM MODAL -->
+<div id="deleteUserModal" class="modal-overlay" style="display:none">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-header">
+      <h3 class="modal-title" style="color:var(--aka)">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+        アカウント削除 / Delete Account
+      </h3>
+      <button class="modal-close" onclick="closeModal('deleteUserModal')">✕</button>
+    </div>
+    <div style="background:rgba(139,28,28,.05);border:1px solid rgba(139,28,28,.2);padding:1rem;margin-bottom:1.2rem;font-size:.82rem;color:#5a4840;line-height:1.8">
+      <strong id="deleteUserName" style="color:var(--aka)"></strong> のアカウントを完全に削除します。<br>
+      <strong style="color:var(--aka)">⚠ この操作は取り消せません。</strong><br>
+      <span style="font-size:.78rem;color:var(--smoke)">All reservation history and profile data will be permanently deleted. This cannot be undone.</span>
+    </div>
+    <div style="margin-bottom:1.2rem">
+      <label class="form-label" style="color:var(--aka);font-size:.72rem">確認のため「削除」と入力してください / Type "削除" to confirm</label>
+      <input type="text" id="deleteUserConfirmInput" class="form-control" placeholder="削除" oninput="checkDeleteInput()"/>
+    </div>
+    <div class="d-flex gap-3">
+      <button class="btn-submit" id="confirmDeleteUserBtn" style="width:auto;padding:.7rem 1.5rem;background:var(--aka);opacity:.4;cursor:not-allowed"
+              onclick="doDeleteUser()" disabled>
+        <i class="fa-solid fa-user-xmark me-1"></i> 完全削除 / Delete Permanently
+      </button>
+      <button class="dash-cancel-btn" onclick="closeModal('deleteUserModal');document.getElementById('deleteUserConfirmInput').value=''">
+        キャンセル / Cancel
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let deleteUserPk = null;
+
+function confirmDeleteUser(pk, name) {
+  deleteUserPk = pk;
+  document.getElementById('deleteUserName').textContent = name;
+  document.getElementById('deleteUserConfirmInput').value = '';
+  document.getElementById('confirmDeleteUserBtn').disabled = true;
+  document.getElementById('confirmDeleteUserBtn').style.opacity = '.4';
+  document.getElementById('confirmDeleteUserBtn').style.cursor = 'not-allowed';
+  openModal('deleteUserModal');
+}
+
+function checkDeleteInput() {
+  const val = document.getElementById('deleteUserConfirmInput').value;
+  const btn = document.getElementById('confirmDeleteUserBtn');
+  const ok  = val === '削除';
+  btn.disabled = !ok;
+  btn.style.opacity = ok ? '1' : '.4';
+  btn.style.cursor  = ok ? 'pointer' : 'not-allowed';
+}
+
+async function doDeleteUser() {
+  if (!deleteUserPk) return;
+  try {
+    const res  = await fetch(`/hanzen-admin/users/${deleteUserPk}/delete/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.CSRF_TOKEN, 'X-Requested-With': 'XMLHttpRequest' },
+      body: '{}',
+    });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('user-row-' + deleteUserPk)?.remove();
+      closeModal('deleteUserModal');
+      showToast('ユーザーを削除しました / User deleted', '');
+    } else {
+      showToast('エラー / Error: ' + (data.error || ''), '');
+    }
+  } catch(e) {
+    showToast('エラー / Error', 'Something went wrong');
+  }
+}
+
+async function toggleStaff(pk, name) {
+  const res  = await fetch(`/hanzen-admin/users/${pk}/toggle-staff/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.CSRF_TOKEN },
+    body: '{}',
+  });
+  const data = await res.json();
+  if (data.ok) {
+    const role = document.getElementById('role-' + pk);
+    if (role) {
+      role.textContent = data.is_staff ? 'Staff' : '会員';
+      role.className   = data.is_staff ? 'avail-toggle avail-on' : 'avail-toggle';
+      if (!data.is_staff) { role.style.background='rgba(200,144,58,.1)'; role.style.color='var(--ki)'; }
+    }
+    showToast(`${name} の権限を変更しました / Role updated`, '');
+  }
+}
+</script>
+{% endblock %}

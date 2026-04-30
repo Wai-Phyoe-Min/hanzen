@@ -1,0 +1,43 @@
+{% extends "restaurant/base.html" %}
+{% block title %}注文履歴 — 花膳{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/dashboard/_sidebar.html" %}
+  <div class="dash-main">
+    <div class="dash-header">
+      <h1 class="dash-title txt" data-ja="注文履歴" data-en="Order History">注文履歴</h1>
+    </div>
+    <div class="dash-section">
+      {% if orders %}
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead><tr>
+            <th>#</th>
+            <th class="txt" data-ja="日時" data-en="Date">日時</th>
+            <th class="txt" data-ja="商品数" data-en="Items">商品数</th>
+            <th class="txt" data-ja="合計" data-en="Total">合計</th>
+            <th class="txt" data-ja="ステータス" data-en="Status">ステータス</th>
+          </tr></thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td>#{{ order.pk }}</td>
+              <td>{{ order.created_at|date:"Y/m/d H:i" }}</td>
+              <td>{{ order.total_items }}点</td>
+              <td style="color:var(--aka);font-family:var(--font-en)">¥{{ order.total|floatformat:0 }}</td>
+              <td><span class="res-status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="dash-empty">
+        <i class="fa-solid fa-bowl-rice fa-2x mb-3" style="opacity:.25"></i>
+        <p class="txt" data-ja="注文履歴がありません。" data-en="No orders found.">注文履歴がありません。</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

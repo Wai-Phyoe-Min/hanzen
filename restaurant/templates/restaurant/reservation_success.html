@@ -1,0 +1,43 @@
+{% extends "restaurant/base.html" %}
+{% load i18n %}
+{% block title %}予約確認 / Reservation Confirmed — 花膳{% endblock %}
+{% block content %}
+<section class="page-section hours-page">
+  <div class="container">
+    <div class="section-header section-header--center fade-in">
+      <span class="section-tag" data-ja="予約確認" data-en="Reservation">予約確認</span>
+      <h2 class="section-title-jp">ご予約を承りました</h2>
+      <p class="section-title-en">Reservation Confirmed</p>
+      <p class="section-desc txt" data-ja="ご予約の詳細を以下の通りご確認ください。" data-en="Please review your booking details below.">ご予約の詳細を以下の通りご確認ください。</p>
+    </div>
+
+    <div class="hours-calendar-panel fade-in delay-1">
+      <div class="hours-calendar-head">
+        <div>
+          <span class="calendar-meta" data-ja="予約確認" data-en="Booking Confirmed">予約確認</span>
+          <h3 class="calendar-title">Your reservation is set</h3>
+          <p class="calendar-sub txt" data-ja="必要な情報はこのページでいつでも確認できます。" data-en="You can always check your booking details here.">必要な情報はこのページでいつでも確認できます。</p>
+        </div>
+        <a href="{% url 'restaurant:home' %}" class="btn-gold calendar-action">
+          <span class="txt" data-ja="ホームに戻る" data-en="Back to Home">ホームに戻る</span>
+          <i class="fa-solid fa-house fa-xs"></i>
+        </a>
+      </div>
+
+      <div class="res-summary fade-in delay-2" style="max-width:680px;margin:0 auto;background:#fff;border:1px solid rgba(139,28,28,.12);padding:2.2rem;border-radius:24px;text-align:left;box-shadow:0 20px 60px rgba(139,28,28,.08);">
+        <div class="res-summary-row"><span class="res-label txt" data-ja="予約番号" data-en="Reservation #">予約番号</span><span class="res-val">#{{ reservation.pk }}</span></div>
+        <div class="res-summary-row"><span class="res-label txt" data-ja="お名前" data-en="Name">お名前</span><span class="res-val">{{ reservation.name }}</span></div>
+        <div class="res-summary-row"><span class="res-label txt" data-ja="日時" data-en="Date & Time">日時</span><span class="res-val">{{ reservation.date }} {{ reservation.time }}</span></div>
+        <div class="res-summary-row"><span class="res-label txt" data-ja="人数" data-en="Party">人数</span><span class="res-val">{{ reservation.party_size }}名</span></div>
+        {% if reservation.course %}
+        <div class="res-summary-row"><span class="res-label txt" data-ja="コース" data-en="Course">コース</span><span class="res-val">{{ reservation.course.name_ja }}</span></div>
+        {% endif %}
+      </div>
+
+      <p class="fade-in delay-3" style="font-size:.85rem;color:var(--smoke);margin-top:1.8rem;text-align:center;" class="txt" data-ja="確認メールを {{ reservation.email }} 宛にお送りしました。" data-en="A confirmation email has been sent to {{ reservation.email }}.">
+        確認メールを {{ reservation.email }} 宛にお送りしました。
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

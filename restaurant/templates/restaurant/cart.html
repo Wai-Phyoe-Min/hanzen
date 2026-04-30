@@ -1,0 +1,192 @@
+{% extends "restaurant/base.html" %}
+{% load i18n %}
+{% block title %}カート / Cart — 花膳{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('/media/site_images/cart_img.jpeg')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content fade-in">
+    <span class="section-tag" style="color:var(--aka)">
+      <span class="txt" data-ja="ご注文" data-en="Order">ご注文</span>
+    </span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="カート" data-en="Cart">カート</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="ご注文内容" data-en="Your Order">Your Order</span>
+    </p>
+  </div>
+</div>
+
+<section style="padding:4rem 0;background:var(--shiro)">
+  <div class="container">
+    {% if cart_items %}
+    <div class="row gy-4">
+      <div class="col-lg-8">
+        <div class="cart-table-wrap">
+          <div class="cart-header-row">
+            <span class="txt" data-ja="商品" data-en="Item">商品</span>
+            <span class="txt" data-ja="単価" data-en="Price">単価</span>
+            <span class="txt" data-ja="数量" data-en="Qty">数量</span>
+            <span class="txt" data-ja="小計" data-en="Subtotal">小計</span>
+            <span></span>
+          </div>
+
+          {% for ci in cart_items %}
+          <div class="cart-row" id="cart-row-{{ ci.item.pk }}">
+            <div class="cart-item-info">
+              <img src="{{ ci.item.image_url }}" alt="{{ ci.item.name_en }}" class="cart-img"/>
+              <div>
+                <div class="cart-name-jp">{{ ci.item.name_ja }}</div>
+                <div class="cart-name-en">{{ ci.item.name_en }}</div>
+              </div>
+            </div>
+            <div class="cart-unit-price">{{ ci.item.price_formatted }}</div>
+            <div class="cart-qty-control">
+              <button class="qty-btn" onclick="updateQty({{ ci.item.pk }}, -1)" aria-label="decrease">−</button>
+              <span class="qty-num" id="qty-{{ ci.item.pk }}">{{ ci.qty }}</span>
+              <button class="qty-btn" onclick="updateQty({{ ci.item.pk }}, 1)" aria-label="increase">+</button>
+            </div>
+            <div class="cart-sub" id="sub-{{ ci.item.pk }}">¥{{ ci.subtotal|floatformat:0 }}</div>
+            <button class="cart-remove" onclick="removeItem({{ ci.item.pk }})" aria-label="Remove">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          {% endfor %}
+
+          <div class="cart-actions">
+            <button onclick="clearCartAll()" class="cart-clear-btn">
+              <i class="fa-solid fa-trash-can fa-sm me-1"></i>
+              <span class="txt" data-ja="カートを空にする" data-en="Clear Cart">カートを空にする</span>
+            </button>
+            <a href="{% url 'restaurant:menu' %}" class="btn-gold" style="font-size:.72rem">
+              <i class="fa-solid fa-arrow-left fa-sm"></i>
+              <span class="txt" data-ja="メニューに戻る" data-en="Continue Shopping">メニューに戻る</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="cart-summary" id="cartSummary">
+          <h3 class="cart-summary-title txt" data-ja="注文内容" data-en="Order Summary">注文内容</h3>
+          <div class="cart-summary-row">
+            <span class="txt" data-ja="小計" data-en="Subtotal">小計</span>
+            <span id="cartTotal">¥{{ total|floatformat:0 }}</span>
+          </div>
+          <div class="cart-summary-row">
+            <span class="txt" data-ja="消費税（10%）" data-en="Tax (10%)">消費税（10%）</span>
+            <span id="cartTax">¥{{ total|floatformat:0|add:"0" }}</span>
+          </div>
+          <div class="cart-summary-total">
+            <span class="txt" data-ja="合計" data-en="Total">合計</span>
+            <span class="cart-total-price" id="cartGrandTotal">¥{{ total|floatformat:0 }}</span>
+          </div>
+          <p class="cart-summary-note txt" data-ja="ご注文内容を確認したら、次に注文を確定してください。" data-en="After reviewing your order, proceed to checkout.">ご注文内容を確認したら、次に注文を確定してください。</p>
+          <a href="{% url 'restaurant:order' %}" class="btn-submit text-center text-decoration-none d-block mt-4">
+            <span class="txt" data-ja="チェックアウトへ進む" data-en="Proceed to Checkout">チェックアウトへ進む</span>
+            <i class="fa-solid fa-arrow-right ms-2"></i>
+          </a>
+          {% if not user.is_authenticated %}
+          <p class="cart-login-hint txt" data-ja="会員登録するとご予約履歴を保存できます。" data-en="Sign in to save your order history.">
+            会員登録するとご予約履歴を保存できます。
+            <a href="{% url 'restaurant:login' %}" class="txt" data-ja="ログイン" data-en="Login">ログイン</a>
+          </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-5">
+      <i class="fa-solid fa-bowl-rice fa-3x mb-4" style="color:rgba(139,28,28,.2)"></i>
+      <h3 class="section-title-jp mb-2 txt" data-ja="カートは空です" data-en="Cart is Empty">カートは空です</h3>
+      <p class="txt" style="color:var(--smoke);margin-bottom:2rem" data-ja="メニューからお料理をお選びください。" data-en="Please choose dishes from our menu.">メニューからお料理をお選びください。</p>
+      <a href="{% url 'restaurant:menu' %}" class="btn-gold">
+        <span class="txt" data-ja="メニューを見る" data-en="View Menu">メニューを見る</span>
+        <i class="fa-solid fa-arrow-right fa-sm ms-2"></i>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const TAX_RATE = 0.10;
+
+async function updateQty(itemId, delta) {
+  const qtyEl = document.getElementById('qty-' + itemId);
+  const currentQty = parseInt(qtyEl.textContent);
+  const newQty = Math.max(0, currentQty + delta);
+
+  try {
+    const res  = await fetch(URLS.cartUpdate, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','X-CSRFToken':window.CSRF_TOKEN},
+      body: JSON.stringify({item_id: itemId, qty: newQty})
+    });
+    const data = await res.json();
+    if (data.ok) {
+      if (newQty === 0) {
+        document.getElementById('cart-row-' + itemId)?.remove();
+      } else {
+        qtyEl.textContent = data.qty;
+        const subEl = document.getElementById('sub-' + itemId);
+        if (subEl) subEl.textContent = '¥' + data.subtotal.toLocaleString();
+      }
+      updateCartBadge(data.cart_count);
+      updateTotals(data.total);
+      if (data.cart_count === 0) location.reload();
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function removeItem(itemId) {
+  try {
+    const res  = await fetch(URLS.cartRemove, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','X-CSRFToken':window.CSRF_TOKEN},
+      body: JSON.stringify({item_id: itemId})
+    });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('cart-row-' + itemId)?.remove();
+      updateCartBadge(data.cart_count);
+      updateTotals(data.total);
+      if (data.cart_count === 0) location.reload();
+    }
+  } catch(e) {}
+}
+
+async function clearCartAll() {
+  await fetch(URLS.cartClear, {method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':window.CSRF_TOKEN},body:'{}'});
+  location.reload();
+}
+
+function updateCartBadge(count) {
+  const badge = document.getElementById('navCartCount');
+  if (badge) badge.textContent = count;
+}
+
+function updateTotals(subtotal) {
+  const tax   = Math.round(subtotal * TAX_RATE);
+  const grand = subtotal + tax;
+  const fmt   = n => '¥' + n.toLocaleString();
+  const t = document.getElementById('cartTotal');
+  const x = document.getElementById('cartTax');
+  const g = document.getElementById('cartGrandTotal');
+  if (t) t.textContent = fmt(subtotal);
+  if (x) x.textContent = fmt(tax);
+  if (g) g.textContent = fmt(grand);
+}
+// Init tax on load
+(function(){
+  const subtotalEl = document.getElementById('cartTotal');
+  if (!subtotalEl) return;
+  const raw = parseInt(subtotalEl.textContent.replace(/[¥,]/g,'')) || 0;
+  updateTotals(raw);
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,466 @@
+{% extends "restaurant/base.html" %}
+{% load i18n static %}
+
+{% block title %}花膳 HANZEN — 銀座の本格日本料理{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div id="petals"></div>
+
+  <div class="hero-content">
+    <div class="hero-divider">
+      <div class="hero-line"></div>
+      <span class="txt" data-ja="東京・銀座" data-en="Ginza, Tokyo">東京・銀座</span>
+      <div class="hero-line"></div>
+    </div>
+    <h1 class="hero-jp">花膳</h1>
+    <p class="hero-en">Hanzen — Fine Japanese Cuisine</p>
+    <p class="hero-sub txt" data-ja="伝統と革新の融合 · 1987年創業" data-en="Where Tradition Meets Innovation · Est. 1987">
+      伝統と革新の融合 · 1987年創業
+    </p>
+    <a href="{% url 'restaurant:reservation' %}" class="btn-gold">
+      <span class="txt" data-ja="席を予約する" data-en="Reserve Your Table">席を予約する</span>
+      <i class="fa-solid fa-arrow-right fa-sm"></i>
+    </a>
+  </div>
+
+  <div class="hero-scroll">
+    <span class="txt" data-ja="スクロール" data-en="Scroll">スクロール</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     ANNOUNCEMENTS
+══════════════════════════════════════════════════ -->
+{% if site_settings and site_settings.announcement_ja or site_settings.announcement_en %}
+<section style="background:var(--shiro-warm);padding:2rem 0">
+  <div class="container">
+    <div class="text-center">
+      <div style="max-width:700px;margin:0 auto;padding:1.5rem 2rem;background:var(--shiro);border:1px solid rgba(139,28,28,.12);border-left:3px solid var(--aka);text-align:left">
+        <span style="font-size:.68rem;letter-spacing:.25em;text-transform:uppercase;color:var(--aka);display:block;margin-bottom:.8rem" class="txt" data-ja="お知らせ" data-en="Announcement">お知らせ</span>
+        {% if site_settings.announcement_ja %}
+        <p class="txt" data-ja="{{ site_settings.announcement_ja }}" data-en="{{ site_settings.announcement_en }}" style="font-size:.9rem;color:#5a4840;line-height:1.9;margin:0">{{ site_settings.announcement_ja }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ══════════════════════════════════════════════════
+     ABOUT
+══════════════════════════════════════════════════ -->
+<section id="about">
+  <div class="container">
+    <div class="row align-items-center gy-5">
+      <div class="col-lg-5 fade-in">
+        <div class="about-img-wrap">
+          <div class="about-img-deco"></div>
+          <img src="/media/site_images/main_img.jfif"
+               alt="Chef preparing sushi" loading="lazy"/>
+          <div class="about-stamp"><span>1987<br>年創業</span></div>
+        </div>
+      </div>
+      <div class="col-lg-6 offset-lg-1 fade-in delay-2">
+        <span class="section-tag txt" data-ja="私たちについて" data-en="Our Story">私たちについて</span>
+        <h2 class="section-title-jp txt" data-ja="日本の心を<br>世界へ" data-en="Japanese Soul,<br>World Stage">日本の心を<br>世界へ</h2>
+        <p class="section-title-en">Japanese Soul, Delivered to the World</p>
+        <div class="gold-rule"><div class="rule-line"></div><div class="rule-diamond"></div></div>
+        <p class="about-p txt"
+           data-ja="花膳は1987年に東京・銀座で誕生しました。初代料理長・田中孝之は、日本各地の伝統技法を一皿に凝縮することを志し、その情熱は今も変わりません。"
+           data-en="Hanzen was born in Ginza, Tokyo in 1987. Our founder, Chef Takayuki Tanaka, dedicated his life to distilling Japan's regional traditions into every dish — a passion that lives on today.">
+          花膳は1987年に東京・銀座で誕生しました。初代料理長・田中孝之は、日本各地の伝統技法を一皿に凝縮することを志し、その情熱は今も変わりません。
+        </p>
+        <p class="about-p txt"
+           data-ja="最高品質の食材のみを使用し、職人の手仕事と現代の感性が融合した料理をお届けします。ミシュランガイド東京に3年連続で掲載されました。"
+           data-en="We source only the finest seasonal ingredients and blend artisanal craftsmanship with contemporary sensibility. Michelin Guide Tokyo featured us for three consecutive years.">
+          最高品質の食材のみを使用し、職人の手仕事と現代の感性が融合した料理をお届けします。ミシュランガイド東京に3年連続で掲載されました。
+        </p>
+        <div class="about-stats">
+          <div class="stat-item"><div class="stat-num counter" data-target="37">0</div><div class="stat-label txt" data-ja="創業年数" data-en="Years">年</div></div>
+          <div class="stat-item"><div class="stat-num counter" data-target="3">0</div><div class="stat-label">★</div></div>
+          <div class="stat-item"><div class="stat-num counter" data-target="15">0</div><div class="stat-label txt" data-ja="職人" data-en="Chefs">人</div></div>
+          <div class="stat-item"><div class="stat-num counter" data-target="200">0</div><div class="stat-label txt" data-ja="席数" data-en="Seats">席</div></div>
+        </div>
+        <a href="{% url 'restaurant:about' %}" class="btn-gold mt-4" style="display:inline-flex">
+          <span class="txt" data-ja="詳しく見る" data-en="Learn More">詳しく見る</span>
+          <i class="fa-solid fa-arrow-right fa-sm ms-2"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wave-sep">・&nbsp;&nbsp;・&nbsp;&nbsp;・</div>
+
+<!-- ══════════════════════════════════════════════════
+     MENU
+══════════════════════════════════════════════════ -->
+<section id="menu-preview">
+  <div class="container">
+    <div class="text-center mb-5 fade-in">
+      <span class="section-tag txt" data-ja="お品書き" data-en="Our Menu">お品書き</span>
+      <h2 class="section-title-jp txt" data-ja="季節の恵み" data-en="Gifts of the Season">季節の恵み</h2>
+      <p class="section-title-en">Seasonal Gifts</p>
+    </div>
+
+    <!-- Menu Tabs -->
+    <div class="menu-tabs fade-in" id="menuTabs">
+      {% for cat in categories %}
+      <button class="menu-tab {% if forloop.first %}active{% endif %}"
+              data-cat="{{ cat.slug }}">
+        <span class="txt" data-ja="{{ cat.name_ja }}" data-en="{{ cat.name_en }}">{{ cat.name_ja }}</span>
+      </button>
+      {% endfor %}
+    </div>
+
+    <!-- Dynamic menu grid (populated by JS via API) -->
+    <div id="menuGrid" class="row g-4">
+      {% for cat in categories %}
+        {% if forloop.first %}
+          {% for item in cat.items.all %}
+          {% if item.is_available %}
+          <div class="col-md-6 col-lg-3 fade-in delay-{{ forloop.counter }}">
+            <div class="dish-card" data-id="{{ item.pk }}" data-name-ja="{{ item.name_ja }}">
+              <div class="dish-img-wrap">
+                <img src="{{ item.image_url }}" alt="{{ item.name_en }}" loading="lazy"/>
+                {% if item.badge %}
+                <span class="dish-badge badge-{{ item.badge }}">
+                  <span class="txt" data-ja="{{ item.get_badge_display|truncatechars:10 }}" data-en="{{ item.badge|upper }}">{{ item.get_badge_display }}</span>
+                </span>
+                {% endif %}
+              </div>
+              <div class="dish-body">
+                <div class="dish-name-jp">{{ item.name_ja }}</div>
+                <div class="dish-name-en">{{ item.name_en }}</div>
+                <p class="dish-desc txt" data-ja="{{ item.description_ja }}" data-en="{{ item.description_en }}">{{ item.description_ja }}</p>
+                <div class="dish-footer">
+                  <span class="dish-price">{{ item.price_formatted }}</span>
+                  <button class="dish-order" onclick="addToCartAjax({{ item.pk }}, '{{ item.name_ja }}')">
+                    <span class="txt" data-ja="注文" data-en="Order">注文</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-5 fade-in">
+      <a href="{% url 'restaurant:menu' %}" class="btn-gold">
+        <span class="txt" data-ja="全メニューを見る" data-en="View Full Menu">全メニューを見る</span>
+        <i class="fa-solid fa-arrow-right fa-sm ms-2"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     EXPERIENCE STRIP
+══════════════════════════════════════════════════ -->
+<section id="experience">
+  <div class="exp-bg" id="expBg"></div>
+  <div class="container exp-content">
+    <span class="section-tag txt" data-ja="こだわり" data-en="Our Philosophy">こだわり</span>
+    <h2 class="section-title-jp txt" data-ja="五感で味わう" data-en="A Feast for All Senses">五感で味わう</h2>
+    <p class="section-title-en">A Feast for All Five Senses</p>
+    <div class="feature-grid">
+      <div class="feature-item fade-in delay-1">
+        <div class="feature-icon"><i class="fa-solid fa-leaf"></i></div>
+        <div class="feature-title-jp">旬の素材</div>
+        <div class="feature-title-en">Seasonal Ingredients</div>
+        <p class="feature-desc txt" data-ja="全国の産地から毎日直送される旬の食材のみを使用します。" data-en="Only seasonal produce delivered daily from farms across Japan graces our kitchen.">全国の産地から毎日直送される旬の食材のみを使用します。</p>
+      </div>
+      <div class="feature-item fade-in delay-2">
+        <div class="feature-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
+        <div class="feature-title-jp">職人の技</div>
+        <div class="feature-title-en">Master Craftsmanship</div>
+        <p class="feature-desc txt" data-ja="平均20年以上の経験を持つ職人が、伝統技法で一皿一皿を仕上げます。" data-en="Chefs with 20+ years of mastery apply traditional techniques to every single plate.">平均20年以上の経験を持つ職人が、伝統技法で一皿一皿を仕上げます。</p>
+      </div>
+      <div class="feature-item fade-in delay-3">
+        <div class="feature-icon"><i class="fa-solid fa-spa"></i></div>
+        <div class="feature-title-jp">和の空間</div>
+        <div class="feature-title-en">Wa Ambiance</div>
+        <p class="feature-desc txt" data-ja="京都の数奇屋造りにインスパイアされた空間で、非日常を体験してください。" data-en="Be transported by our Kyoto sukiya-inspired interiors — a world apart.">京都の数奇屋造りにインスパイアされた空間で、非日常を体験してください。</p>
+      </div>
+      <div class="feature-item fade-in delay-4">
+        <div class="feature-icon"><i class="fa-solid fa-wine-glass"></i></div>
+        <div class="feature-title-jp">厳選日本酒</div>
+        <div class="feature-title-en">Curated Sake</div>
+        <p class="feature-desc txt" data-ja="全国100以上の蔵元から厳選した日本酒セレクション。" data-en="100+ breweries represented with expert sake sommelier guidance.">全国100以上の蔵元から厳選した日本酒セレクション。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     KAISEKI COURSES
+══════════════════════════════════════════════════ -->
+<section id="courses">
+  <div class="container">
+    <div class="text-center mb-5 fade-in">
+      <span class="section-tag txt" data-ja="懐石コース" data-en="Kaiseki Courses">懐石コース</span>
+      <h2 class="section-title-jp txt" data-ja="至高の一夜" data-en="A Supreme Evening">至高の一夜</h2>
+      <p class="section-title-en">A Supreme Evening</p>
+    </div>
+    <div class="row g-4">
+      {% for course in courses %}
+      <div class="col-md-6 col-lg-3 fade-in delay-{{ forloop.counter }}">
+        <div class="course-card">
+          <div class="course-img-wrap">
+            <img src="{{ course.image_url }}" alt="{{ course.name_en }}" loading="lazy"/>
+            <div class="course-tier-badge">
+              <span class="txt" data-ja="{{ course.courses }}品" data-en="{{ course.courses }} Courses">{{ course.courses }}品</span>
+            </div>
+          </div>
+          <div class="course-body">
+            <div class="course-name-jp">{{ course.name_ja }}</div>
+            <div class="course-name-en">{{ course.name_en }}</div>
+            <p class="course-desc txt" data-ja="{{ course.description_ja }}" data-en="{{ course.description_en }}">{{ course.description_ja }}</p>
+            <div class="course-footer">
+              <span class="course-price">¥{{ course.price|floatformat:0 }}</span>
+              <a href="{% url 'restaurant:reservation' %}?course={{ course.tier }}" class="dish-order txt" data-ja="予約" data-en="Reserve">予約</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     GALLERY PREVIEW
+══════════════════════════════════════════════════ -->
+<section id="gallery-preview" style="background:var(--cream)">
+  <div class="container">
+    <div class="text-center mb-5 fade-in">
+      <span class="section-tag txt" data-ja="ギャラリー" data-en="Gallery">ギャラリー</span>
+      <h2 class="section-title-jp txt" data-ja="一皿の芸術" data-en="Art on Every Plate">一皿の芸術</h2>
+      <p class="section-title-en">Art on Every Plate</p>
+    </div>
+    <div class="gallery-grid fade-in">
+      {% for img in gallery %}
+      <div class="g-item {% if forloop.first %}g-featured{% endif %}"
+           onclick="openLightbox('{{ img.image_url }}')">
+        <img src="{{ img.thumb_url|default:img.image_url }}" alt="{{ img.title_en }}" loading="lazy"/>
+        <div class="g-overlay"><i class="fa-solid fa-expand"></i></div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4 fade-in">
+      <a href="{% url 'restaurant:gallery' %}" class="btn-gold">
+        <span class="txt" data-ja="全て見る" data-en="View All">全て見る</span>
+        <i class="fa-solid fa-arrow-right fa-sm ms-2"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div id="lightbox">
+  <button id="lightbox-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+  <img id="lightbox-img" src="" alt="Gallery"/>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TESTIMONIALS
+══════════════════════════════════════════════════ -->
+<section id="testimonials">
+  <div class="container">
+    <div class="text-center mb-5 fade-in">
+      <span class="section-tag txt" data-ja="お客様の声" data-en="Guest Reviews">お客様の声</span>
+      <h2 class="section-title-jp txt" data-ja="至福の記憶" data-en="Memories of Bliss">至福の記憶</h2>
+      <p class="section-title-en">Memories of Bliss</p>
+    </div>
+    <div class="testimonial-slider fade-in">
+      <div class="testimonial-track" id="testiTrack">
+        <!-- Testimonial 1 -->
+        <div class="testimonial-slide">
+          <div class="testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote txt" 
+              data-ja="花膳での食事は、まさに芸術でした。一皿一皿に込められた職人の技と情熱に感動しました。特に梅の出汁を使ったお椀は、人生で一番の味でした。"
+              data-en="Dining at Hanzen was pure art. Every dish moved me with its craftsmanship and passion. The soup made with Ume's Dashi was simply the best I've ever tasted in my life.">
+              花膳での食事は、まさに芸術でした。一皿一皿に込められた職人の技と情熱に感動しました。特に梅の出汁を使ったお椀は、人生で一番の味でした。
+            </p>
+            <p class="testi-sub">— 山田 美咲 / 東京</p>
+          </div>
+        </div>
+        
+        <!-- Testimonial 2 -->
+        <div class="testimonial-slide">
+          <div class="testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote txt"
+              data-ja="銀座で一番の日本料理店。接待で利用しましたが、料理はもちろん、おもてなしの心が素晴らしかったです。個室の雰囲気も最高でした。"
+              data-en="The finest Japanese restaurant in Ginza. I used it for a business dinner, and not only the food but the spirit of omotenashi was outstanding. The private room ambiance was perfect.">
+              銀座で一番の日本料理店。接待で利用しましたが、料理はもちろん、おもてなしの心が素晴らしかったです。個室の雰囲気も最高でした。
+            </p>
+            <p class="testi-sub">— 佐藤 健一 / 大阪</p>
+          </div>
+        </div>
+        
+        <!-- Testimonial 3 -->
+        <div class="testimonial-slide">
+          <div class="testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote txt"
+              data-ja="妻の誕生日に訪れました。おまかせコースを選びましたが、季節感あふれる料理の数々に妻も大喜び。記念日には必ず戻ってきます。"
+              data-en="I brought my wife for her birthday. We chose the omakase course, and she was thrilled by the seasonal dishes one after another. We'll definitely return for every anniversary.">
+              妻の誕生日に訪れました。おまかせコースを選びましたが、季節感あふれる料理の数々に妻も大喜び。記念日には必ず戻ってきます。
+            </p>
+            <p class="testi-sub">— Michael Thompson / New York</p>
+          </div>
+        </div>
+        
+        <!-- Testimonial 4 -->
+        <div class="testimonial-slide">
+          <div class="testi-card">
+            <div class="testi-stars">★★★★☆</div>
+            <p class="testi-quote txt"
+              data-ja="パリから来ました。和洋折衷の独創的な料理に驚きました。フレンチの技法と日本料理の融合がこんなに美しいとは。ワインのペアリングも完璧。"
+              data-en="I came from Paris and was amazed by the creative fusion cuisine. The blend of French technique and Japanese tradition is breathtakingly beautiful. The wine pairing was perfect too.">
+              パリから来ました。和洋折衷の独創的な料理に驚きました。フレンチの技法と日本料理の融合がこんなに美しいとは。ワインのペアリングも完璧。
+            </p>
+            <p class="testi-sub">— Sophie Laurent / Paris</p>
+          </div>
+        </div>
+        
+        <!-- Testimonial 5 -->
+        <div class="testimonial-slide">
+          <div class="testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote txt"
+              data-ja="花膳の大トロは別格です。口に入れた瞬間にとろける食感、そして広がる旨味。これ以上の寿司を食べたことがありません。カウンター席で職人技を見られるのも最高です。"
+              data-en="Hanzen's otoro is in a league of its own. The moment it touches your tongue, it melts away and the umami spreads. I've never had better sushi. Watching the chefs at the counter is a privilege.">
+              花膳の大トロは別格です。口に入れた瞬間にとろける食感、そして広がる旨味。これ以上の寿司を食べたことがありません。カウンター席で職人技を見られるのも最高です。
+            </p>
+            <p class="testi-sub">— 田中 大輔 / 福岡</p>
+          </div>
+        </div>
+      </div>
+      <div class="testi-nav">
+        <button onclick="testiPrev()" aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="testi-dots" id="testiDots">
+          <span class="testi-dot active" onclick="goToSlide(0)"></span>
+          <span class="testi-dot" onclick="goToSlide(1)"></span>
+          <span class="testi-dot" onclick="goToSlide(2)"></span>
+          <span class="testi-dot" onclick="goToSlide(3)"></span>
+          <span class="testi-dot" onclick="goToSlide(4)"></span>
+        </div>
+        <button onclick="testiNext()" aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     RESERVATION PREVIEW
+══════════════════════════════════════════════════ -->
+<section id="reservation-cta" style="background:var(--ink);padding:6rem 0">
+  <div class="container text-center" style="position:relative;z-index:1">
+    <span class="section-tag" style="color:var(--gold)">ご予約 · Reservation</span>
+    <h2 class="section-title-jp" style="color:var(--parchment)" data-ja="特別な夜を" data-en="Reserve Your Evening">特別な夜を</h2>
+    <p class="section-title-en" style="color:var(--smoke);margin-bottom:2.5rem">Reserve Your Evening</p>
+    <p style="color:#6b5f52;font-size:.9rem;max-width:500px;margin:0 auto 2.5rem;line-height:1.9" class="txt"
+       data-ja="花膳での特別なひとときをご予約ください。誕生日・記念日など、特別なご要望もお気軽にお申し付けください。"
+       data-en="Book your table at Hanzen for an unforgettable experience. Special occasions, anniversaries — just let us know.">
+      花膳での特別なひとときをご予約ください。誕生日・記念日など、特別なご要望もお気軽にお申し付けください。
+    </p>
+    <a href="{% url 'restaurant:reservation' %}" class="btn-gold">
+      <span class="txt" data-ja="今すぐ予約する" data-en="Book a Table Now">今すぐ予約する</span>
+      <i class="fa-solid fa-arrow-right fa-sm ms-2"></i>
+    </a>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Hero parallax
+window.addEventListener('scroll', () => {
+  const sy = window.scrollY;
+  const hb = document.getElementById('heroBg');
+  if (hb) hb.style.transform = `scale(1.06) translateY(${sy*0.25}px)`;
+  const eb = document.getElementById('expBg');
+  if (eb) { const r = eb.parentElement.getBoundingClientRect(); eb.style.transform = `translateY(${-r.top*0.15}px)`; }
+});
+
+// ── Sakura petals
+(function() {
+  const pc = document.getElementById('petals');
+  if (!pc) return;
+  for (let i=0;i<18;i++) {
+    const p = document.createElement('div'); p.className='petal';
+    p.style.cssText = `left:${Math.random()*100}vw;width:${8+Math.random()*8}px;height:${12+Math.random()*10}px;animation-duration:${6+Math.random()*8}s;animation-delay:${Math.random()*10}s`;
+    pc.appendChild(p);
+  }
+})();
+
+// ── Menu tabs with AJAX
+const menuTabs = document.querySelectorAll('.menu-tab');
+menuTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    menuTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const cat = tab.dataset.cat;
+    fetchMenuItems(cat);
+  });
+});
+
+async function fetchMenuItems(cat) {
+  const grid = document.getElementById('menuGrid');
+  grid.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner"></div></div>';
+  try {
+    const res  = await fetch(`${URLS.apiMenu}?cat=${cat}`);
+    const data = await res.json();
+    const lang = document.body.dataset.lang || 'ja';
+    grid.innerHTML = data.items.slice(0,4).map((item,i) => `
+      <div class="col-md-6 col-lg-3 fade-in delay-${i+1} visible">
+        <div class="dish-card" data-id="${item.id}">
+          <div class="dish-img-wrap">
+            <img src="${item.image}" alt="${item.name_en}" loading="lazy"/>
+            ${item.badge ? `<span class="dish-badge badge-${item.badge}">${item.badge.toUpperCase()}</span>` : ''}
+          </div>
+          <div class="dish-body">
+            <div class="dish-name-jp">${item.name_ja}</div>
+            <div class="dish-name-en">${item.name_en}</div>
+            <p class="dish-desc">${lang==='ja' ? item.desc_ja : item.desc_en}</p>
+            <div class="dish-footer">
+              <span class="dish-price">${item.price_fmt}</span>
+              <button class="dish-order" onclick="addToCartAjax(${item.id},'${item.name_ja}')">
+                ${lang==='ja' ? '注文' : 'Order'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>`).join('');
+  } catch(e) { grid.innerHTML = '<div class="col-12 text-center py-4" style="color:var(--smoke)">読み込み中... / Loading…</div>'; }
+}
+
+// ── Testimonial slider
+let testiIdx = 0;
+const slides   = document.querySelectorAll('.testimonial-slide');
+const dots     = document.querySelectorAll('.testi-dot');
+function updateTesti() {
+  document.getElementById('testiTrack').style.transform = `translateX(-${testiIdx*100}%)`;
+  dots.forEach((d,i) => d.classList.toggle('active', i===testiIdx));
+}
+function testiNext() { testiIdx = (testiIdx+1) % slides.length; updateTesti(); }
+function testiPrev() { testiIdx = (testiIdx-1+slides.length) % slides.length; updateTesti(); }
+function goToSlide(i) { testiIdx = i; updateTesti(); }
+setInterval(testiNext, 6000);
+</script>
+{% endblock %}

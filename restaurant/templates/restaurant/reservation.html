@@ -1,0 +1,201 @@
+{% extends "restaurant/base.html" %}
+{% load i18n static %}
+{% block title %}ご予約 / Reservation — 花膳 HANZEN{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('/media/site_images/reservation_img.jfif')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content">
+    <span class="section-tag txt" style="color:var(--gold)" data-ja="ご予約" data-en="Reservation">ご予約</span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="ご予約" data-en="Reservation">Reservation</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="特別な夜のご予約" data-en="Reserve your special evening">特別な夜のご予約</span>
+    </p>
+  </div>
+</div>
+
+<section class="reservation-section page-section">
+  <div class="container">
+    <div class="row gy-5">
+      <div class="col-lg-7 fade-in">
+        <div class="res-form-wrap">
+          <h2 style="font-family:var(--font-jp);font-size:1.2rem;letter-spacing:.08em;margin-bottom:2rem;color:var(--ink)" class="txt" data-ja="予約フォーム" data-en="Reservation Form">予約フォーム</h2>
+
+          <!-- Availability Checker -->
+          <div class="avail-check mb-4" id="availCheck" style="display:none">
+            <span class="avail-indicator" id="availIndicator"></span>
+            <span id="availMsg"></span>
+          </div>
+
+          <form method="post" id="resForm" novalidate>
+            {% csrf_token %}
+            <div class="row g-4">
+              {% for field in form %}
+              <div class="col-md-{% if field.name == 'special_request' or field.name == 'course' %}12{% else %}6{% endif %}">
+                <label class="form-label" for="{{ field.id_for_label }}">
+                  {% if field.name == 'name' %}<span class="txt" data-ja="お名前" data-en="Full Name">お名前</span>
+                  {% elif field.name == 'email' %}<span class="txt" data-ja="メールアドレス" data-en="Email Address">メールアドレス</span>
+                  {% elif field.name == 'phone' %}<span class="txt" data-ja="電話番号" data-en="Phone Number">電話番号</span>
+                  {% elif field.name == 'date' %}<span class="txt" data-ja="ご来店日" data-en="Visit Date">ご来店日</span>
+                  {% elif field.name == 'time' %}<span class="txt" data-ja="ご来店時間" data-en="Visit Time">ご来店時間</span>
+                  {% elif field.name == 'party_size' %}<span class="txt" data-ja="人数" data-en="Number of Guests">人数</span>
+                  {% elif field.name == 'course' %}<span class="txt" data-ja="コース（任意）" data-en="Course (Optional)">コース（任意）</span>
+                  {% elif field.name == 'special_request' %}<span class="txt" data-ja="ご要望・アレルギー情報" data-en="Special Requests / Allergies">ご要望・アレルギー情報</span>
+                  {% else %}{{ field.label }}{% endif %}
+                </label>
+                {{ field }}
+                {% if field.errors %}
+                  {% for e in field.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            <button type="submit" class="btn-submit mt-4" id="submitBtn">
+              <span class="txt" data-ja="予約を確認する" data-en="Confirm Reservation">予約を確認する</span>
+              <i class="fa-solid fa-arrow-right ms-2"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-lg-4 offset-lg-1 fade-in delay-2">
+        <div class="info-block">
+          <h3 class="info-block-title txt" data-ja="営業時間" data-en="Hours">営業時間</h3>
+          <p class="info-block-sub">Business Hours</p>
+          {% if today_hours %}
+          {% if today_hours.is_closed %}
+          <p class="txt" style="font-size:.85rem;color:#6b5f52;line-height:1.9"
+             data-ja="本日休業日です。" data-en="Closed today.">
+            本日休業日です。
+          </p>
+          {% else %}
+          <p class="txt" style="font-size:.85rem;color:#6b5f52;line-height:1.9"
+             data-ja="ランチ: {{ today_hours.lunch_open|time:'H:i' }}〜{{ today_hours.lunch_close|time:'H:i' }}（LO {{ today_hours.lunch_close|time:'H:i' }}）<br>ディナー: {{ today_hours.dinner_open|time:'H:i' }}〜{{ today_hours.dinner_close|time:'H:i' }}（LO {{ today_hours.dinner_close|time:'H:i' }}）"
+             data-en="Lunch: {{ today_hours.lunch_open|time:'H:i' }}–{{ today_hours.lunch_close|time:'H:i' }} (LO {{ today_hours.lunch_close|time:'H:i' }})<br>Dinner: {{ today_hours.dinner_open|time:'H:i' }}–{{ today_hours.dinner_close|time:'H:i' }} (LO {{ today_hours.dinner_close|time:'H:i' }})">
+            ランチ: {{ today_hours.lunch_open|time:'H:i' }}〜{{ today_hours.lunch_close|time:'H:i' }}（LO {{ today_hours.lunch_close|time:'H:i' }}）<br>
+            ディナー: {{ today_hours.dinner_open|time:'H:i' }}〜{{ today_hours.dinner_close|time:'H:i' }}（LO {{ today_hours.dinner_close|time:'H:i' }}）
+          </p>
+          {% endif %}
+          {% else %}
+          <p class="txt" style="font-size:.85rem;color:#6b5f52;line-height:1.9"
+             data-ja="営業時間は現在取得できません。" data-en="Business hours are currently unavailable.">
+            営業時間は現在取得できません。
+          </p>
+          {% endif %}
+        </div>
+        <div class="info-block">
+          <h3 class="info-block-title txt" data-ja="アクセス" data-en="Access">アクセス</h3>
+          <p class="info-block-sub">How to Find Us</p>
+          <p style="font-size:.85rem;color:#6b5f52;line-height:1.9" class="txt"
+             data-ja="〒104-0061<br>東京都中央区銀座6-10-1<br>銀座駅 A3出口より徒歩2分"
+             data-en="6-10-1 Ginza, Chuo-ku<br>Tokyo 104-0061<br>2 min from Ginza Sta. Exit A3">
+            〒104-0061<br>東京都中央区銀座6-10-1<br>銀座駅 A3出口より徒歩2分
+          </p>
+        </div>
+        <div class="info-block">
+          <h3 class="info-block-title txt" data-ja="お電話でのご予約" data-en="Phone Booking">お電話でのご予約</h3>
+          <a href="tel:{{ settings.contact_phone }}" style="font-family:var(--font-en);font-size:1.6rem;color:var(--gold);text-decoration:none;display:block;margin-bottom:.5rem">{{ settings.contact_phone }}</a>
+          <p style="font-size:.78rem;color:var(--smoke)">
+            <span class="txt" data-ja="{{ settings.contact_hours_ja }} {{ settings.contact_note_ja }}" data-en="{{ settings.contact_hours_en }} {{ settings.contact_note_en }}">{{ settings.contact_hours_en }}</span>
+          </p>
+        </div>
+        <iframe class="map-embed"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3241.748069946!2d139.76234!3d35.669869!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60188be791292cf1%3A0x1b0a9e7d5d3a7eaa!2sGinza%2C%20Chuo%20City%2C%20Tokyo!5e0!3m2!1sen!2sjp!4v1700000000000!5m2!1sen!2sjp"
+          loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="Map to Hanzen">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Dynamic time slots based on selected date
+const dateField = document.getElementById('id_date');
+const timeField = document.getElementById('id_time');
+
+async function updateTimeSlots() {
+  const date = dateField?.value;
+  if (!date || !timeField) return;
+  
+  const selectedValue = timeField.value; // Save current selection
+  
+  timeField.innerHTML = '<option value="">読み込み中... / Loading...</option>';
+  timeField.disabled = true;
+  
+  try {
+    const res = await fetch(`/api/time-slots/?date=${date}`);
+    const data = await res.json();
+    
+    timeField.innerHTML = '';
+    
+    if (data.is_closed) {
+      timeField.innerHTML = '<option value="">定休日 / Closed</option>';
+      timeField.disabled = true;
+      return;
+    }
+    
+    if (data.time_slots.length === 0) {
+      timeField.innerHTML = '<option value="">時間帯がありません / No available times</option>';
+      timeField.disabled = true;
+      return;
+    }
+    
+    data.time_slots.forEach(([value, label]) => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === selectedValue) option.selected = true;
+      timeField.appendChild(option);
+    });
+    
+    timeField.disabled = false;
+    
+    // Re-check availability if a time was already selected
+    if (timeField.value) {
+      checkAvailability();
+    }
+  } catch(e) {
+    timeField.innerHTML = '<option value="">エラー / Error</option>';
+    console.error('Failed to load time slots:', e);
+  }
+}
+
+// Availability check on date/time change
+async function checkAvailability() {
+  const date = dateField?.value;
+  const time = timeField?.value;
+  if (!date || !time) return;
+  const ac = document.getElementById('availCheck');
+  const ind = document.getElementById('availIndicator');
+  const msg = document.getElementById('availMsg');
+  if (!ac) return;
+  ac.style.display = 'flex';
+  ind.className = 'avail-indicator checking';
+  msg.textContent = '確認中... / Checking...';
+  try {
+    const res = await fetch(`${URLS.apiAvail}?date=${date}&time=${time}`);
+    const data = await res.json();
+    ind.className = `avail-indicator ${data.available ? 'available' : 'unavailable'}`;
+    msg.textContent = data.message + (data.available ? ` (残り${data.remaining}席 / ${data.remaining} left)` : '');
+  } catch(e) { ac.style.display='none'; }
+}
+
+if (dateField) {
+  dateField.addEventListener('change', updateTimeSlots);
+  dateField.addEventListener('change', checkAvailability);
+}
+if (timeField) {
+  timeField.addEventListener('change', checkAvailability);
+}
+
+// Also update time slots on page load if a date is already selected
+if (dateField?.value) {
+  updateTimeSlots();
+}
+</script>
+{% endblock %}

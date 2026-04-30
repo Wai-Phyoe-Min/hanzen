@@ -1,0 +1,215 @@
+{% extends "restaurant/base.html" %}
+{% load i18n %}
+{% block title %}利用規約 / Terms of Service — 花膳{% endblock %}
+{% block content %}
+
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('/media/site_images/terms.jpg')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content fade-in">
+    <span class="section-tag txt" style="color:var(--aka)" data-ja="法的情報" data-en="Legal">法的情報</span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="利用規約" data-en="Terms of Service">利用規約</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="利用規約" data-en="Terms of Service">Terms of Service</span>
+    </p>
+  </div>
+</div>
+
+<section style="background:var(--shiro);padding:5rem 0">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+
+        <div class="legal-lang-tabs fade-in">
+          <button class="legal-tab active" onclick="showLang('ja', this)">日本語</button>
+          <button class="legal-tab" onclick="showLang('en', this)">English</button>
+        </div>
+
+        <!-- JAPANESE -->
+        <div class="legal-body fade-in" id="legal-ja">
+          <p class="legal-updated">最終更新日：2024年1月1日</p>
+          <p class="legal-intro">本利用規約（以下「本規約」）は、花膳（以下「当店」）が提供するウェブサイトおよびサービス（以下「本サービス」）の利用条件を定めるものです。お客様は本サービスをご利用いただくことで、本規約に同意したものとみなします。</p>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第1条（適用範囲）</h2>
+            <p>本規約は、本サービスを利用するすべてのお客様に適用されます。当店は、予告なく本規約を変更する場合があります。変更後の規約はウェブサイトに掲載した時点で効力を生じます。</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第2条（会員登録）</h2>
+            <p>会員登録の際は、正確かつ最新の情報をご提供ください。虚偽の情報を登録した場合、当店はアカウントを予告なく停止・削除する権利を有します。アカウントのパスワードはお客様ご自身が管理し、第三者に開示しないでください。</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第3条（予約の申込・確認）</h2>
+            <ul class="legal-list">
+              <li>ご予約は本ウェブサイトのフォーム、または電話にて承ります。</li>
+              <li>予約が確定した時点で、当店よりご確認メールをお送りします。</li>
+              <li>予約確認メールが届かない場合は、お電話にてご確認ください。</li>
+              <li>ご予約内容の変更は、ご来店の3日前までにお申し出ください。</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第4条（キャンセルポリシー）</h2>
+            <p>キャンセルの場合は、できるだけお早めにご連絡ください。以下のキャンセル料が発生する場合があります。</p>
+            <div class="legal-table-wrap">
+              <table class="legal-table">
+                <thead><tr><th>キャンセル時期</th><th>キャンセル料</th></tr></thead>
+                <tbody>
+                  <tr><td>ご来店7日前以前</td><td>無料</td></tr>
+                  <tr><td>ご来店3〜6日前</td><td>コース料金の30%</td></tr>
+                  <tr><td>ご来店前日</td><td>コース料金の50%</td></tr>
+                  <tr><td>当日・無断キャンセル</td><td>コース料金の100%</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第5条（禁止事項）</h2>
+            <p>お客様は以下の行為を行ってはなりません。</p>
+            <ul class="legal-list">
+              <li>虚偽の予約・大量の無断キャンセル</li>
+              <li>他のお客様・スタッフへの迷惑行為・ハラスメント</li>
+              <li>当店の著作物・写真・メニューの無断転載・商業利用</li>
+              <li>本サービスのシステムへの不正アクセス・攻撃</li>
+              <li>法令または公序良俗に反する行為</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第6条（免責事項）</h2>
+            <p>当店は、以下の事項について一切の責任を負いません。</p>
+            <ul class="legal-list">
+              <li>天災・感染症・その他不可抗力による営業停止・予約変更</li>
+              <li>お客様の設備・通信環境に起因する本サービス利用上のトラブル</li>
+              <li>本サービスの一時的な停止・中断</li>
+              <li>第三者ウェブサイトへのリンク先のコンテンツ</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第7条（知的財産権）</h2>
+            <p>本ウェブサイト上のすべてのコンテンツ（テキスト・画像・ロゴ・デザイン・メニュー等）の著作権は花膳または正当な権利者に帰属します。無断での複製・転載・改変・商業利用を禁じます。</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第8条（準拠法・管轄裁判所）</h2>
+            <p>本規約は日本法に準拠し、本規約に関する紛争については東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第9条（お問い合わせ）</h2>
+            <div class="legal-contact-box">
+              <p><strong>花膳 HANZEN</strong></p>
+              <p>〒104-0061 東京都中央区銀座6-10-1</p>
+              <p>TEL: <a href="tel:03-1234-5678">03-1234-5678</a></p>
+              <p>Email: <a href="mailto:info@hanzen.jp">info@hanzen.jp</a></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ENGLISH -->
+        <div class="legal-body fade-in" id="legal-en" style="display:none">
+          <p class="legal-updated">Last Updated: January 1, 2024</p>
+          <p class="legal-intro">These Terms of Service ("Terms") govern the use of the website and services ("Service") provided by Hanzen ("we", "our", or "the restaurant"). By using our Service, you agree to be bound by these Terms.</p>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 1 — Scope</h2>
+            <p>These Terms apply to all guests who use the Service. We may update these Terms without prior notice. Updated Terms take effect from the moment they are posted on this website.</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 2 — Account Registration</h2>
+            <p>Please provide accurate and up-to-date information when registering. If false information is provided, we reserve the right to suspend or delete your account without notice. You are responsible for keeping your password secure and must not share it with third parties.</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 3 — Reservations</h2>
+            <ul class="legal-list">
+              <li>Reservations can be made via the online form or by telephone.</li>
+              <li>A confirmation email will be sent once your reservation is confirmed.</li>
+              <li>If you do not receive a confirmation email, please contact us by phone.</li>
+              <li>Reservation changes must be requested at least 3 days before your visit.</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 4 — Cancellation Policy</h2>
+            <p>Please notify us as early as possible if you need to cancel. The following cancellation fees may apply:</p>
+            <div class="legal-table-wrap">
+              <table class="legal-table">
+                <thead><tr><th>Cancellation Timing</th><th>Fee</th></tr></thead>
+                <tbody>
+                  <tr><td>7+ days before visit</td><td>No charge</td></tr>
+                  <tr><td>3–6 days before visit</td><td>30% of course price</td></tr>
+                  <tr><td>Day before visit</td><td>50% of course price</td></tr>
+                  <tr><td>Same day / No-show</td><td>100% of course price</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 5 — Prohibited Activities</h2>
+            <p>The following activities are strictly prohibited:</p>
+            <ul class="legal-list">
+              <li>False reservations or repeated no-shows</li>
+              <li>Harassment or disruptive behaviour towards other guests or staff</li>
+              <li>Unauthorized reproduction or commercial use of our content, photos, or menus</li>
+              <li>Unauthorized access to or attacks on our systems</li>
+              <li>Any activity that violates laws or public order</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 6 — Disclaimer</h2>
+            <p>We accept no liability for the following:</p>
+            <ul class="legal-list">
+              <li>Closures or reservation changes due to natural disasters, infectious disease, or other force majeure</li>
+              <li>Technical issues arising from a guest's own device or internet connection</li>
+              <li>Temporary suspension or interruption of the Service</li>
+              <li>Content on any third-party websites linked from this site</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 7 — Intellectual Property</h2>
+            <p>All content on this website — including text, images, logos, designs, and menus — is the property of Hanzen or its rightful owners. Reproduction, redistribution, modification, or commercial use without written permission is strictly prohibited.</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 8 — Governing Law</h2>
+            <p>These Terms are governed by Japanese law. Any disputes arising in connection with these Terms shall be subject to the exclusive jurisdiction of the Tokyo District Court as the court of first instance.</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 9 — Contact</h2>
+            <div class="legal-contact-box">
+              <p><strong>花膳 HANZEN</strong></p>
+              <p>6-10-1 Ginza, Chuo-ku, Tokyo 104-0061, Japan</p>
+              <p>TEL: <a href="tel:03-1234-5678">03-1234-5678</a></p>
+              <p>Email: <a href="mailto:info@hanzen.jp">info@hanzen.jp</a></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showLang(lang, btn) {
+  document.getElementById('legal-ja').style.display = lang === 'ja' ? '' : 'none';
+  document.getElementById('legal-en').style.display = lang === 'en' ? '' : 'none';
+  document.querySelectorAll('.legal-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,261 @@
+{% extends "restaurant/base.html" %}
+{% load humanize %}
+{% block title %}管理画面 / Admin Dashboard — 花膳{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/admin_dashboard/_sidebar.html" %}
+  <div class="dash-main">
+
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">
+          管理画面
+          <span style="font-size:.55em;color:var(--smoke);font-family:var(--font-en);font-style:italic"> Admin Dashboard</span>
+        </h1>
+        <p class="dash-subtitle">花膳 Hanzen — Control Panel</p>
+      </div>
+      <span style="font-size:.75rem;color:var(--smoke);font-family:var(--font-ui);display:flex;align-items:center;gap:.4rem">
+        <i class="fa-solid fa-circle" style="color:#4caf50;font-size:.5rem"></i>
+        オンライン / Online
+      </span>
+    </div>
+
+    <!-- KPI Stats -->
+    <div class="admin-stats">
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon" style="background:rgba(139,28,28,.1)">
+          <i class="fa-solid fa-calendar-check" style="color:var(--aka)"></i>
+        </div>
+        <div class="admin-stat-num">{{ total_reservations }}</div>
+        <div class="admin-stat-label">総予約数 <span class="admin-en-label">/ Total Reservations</span></div>
+        <div class="admin-stat-sub">本日 / Today: {{ today_reservations }}</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon" style="background:rgba(255,165,0,.1)">
+          <i class="fa-solid fa-hourglass-half" style="color:darkorange"></i>
+        </div>
+        <div class="admin-stat-num">{{ pending_reservations }}</div>
+        <div class="admin-stat-label">確認待ち <span class="admin-en-label">/ Pending</span></div>
+        <div class="admin-stat-sub" style="color:darkorange">要対応 / Action Required</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon" style="background:rgba(90,110,58,.1)">
+          <i class="fa-solid fa-users" style="color:var(--matcha)"></i>
+        </div>
+        <div class="admin-stat-num">{{ total_users }}</div>
+        <div class="admin-stat-label">会員数 <span class="admin-en-label">/ Members</span></div>
+        <div class="admin-stat-sub">登録済み / Registered</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon" style="background:rgba(200,144,58,.1)">
+          <i class="fa-solid fa-bowl-rice" style="color:var(--ki)"></i>
+        </div>
+        <div class="admin-stat-num">{{ total_menu_items }}</div>
+        <div class="admin-stat-label">メニュー数 <span class="admin-en-label">/ Menu Items</span></div>
+        <div class="admin-stat-sub">{{ total_orders }} 注文 / orders</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon" style="background:rgba(34,139,34,.1)">
+          <i class="fa-solid fa-yen-sign" style="color:green"></i>
+        </div>
+        <div class="admin-stat-num">¥{{ total_revenue|intcomma }}</div>
+        <div class="admin-stat-label">総売上 <span class="admin-en-label">/ Total Revenue</span></div>
+        <div class="admin-stat-sub">注文から / From Orders</div>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+
+      <!-- Reservation status breakdown -->
+      <div class="col-lg-5">
+        <div class="admin-card">
+          <h3 class="admin-card-title">予約ステータス <span class="admin-en-label">/ Reservation Status</span></h3>
+          <div class="status-breakdown">
+            <div class="status-bar-row">
+              <span class="status-bar-label"><span class="res-status-badge status-pending">確認待ち</span></span>
+              <div class="status-bar-track">
+                <div class="status-bar-fill status-fill-pending"
+                     style="width:{% if total_reservations > 0 %}{% widthratio status_counts.pending total_reservations 100 %}{% else %}0{% endif %}%"></div>
+              </div>
+              <span class="status-bar-num">{{ status_counts.pending }}</span>
+            </div>
+            <div class="status-bar-row">
+              <span class="status-bar-label"><span class="res-status-badge status-confirmed">確認済み</span></span>
+              <div class="status-bar-track">
+                <div class="status-bar-fill status-fill-confirmed"
+                     style="width:{% if total_reservations > 0 %}{% widthratio status_counts.confirmed total_reservations 100 %}{% else %}0{% endif %}%"></div>
+              </div>
+              <span class="status-bar-num">{{ status_counts.confirmed }}</span>
+            </div>
+            <div class="status-bar-row">
+              <span class="status-bar-label"><span class="res-status-badge status-completed">来店済み</span></span>
+              <div class="status-bar-track">
+                <div class="status-bar-fill status-fill-completed"
+                     style="width:{% if total_reservations > 0 %}{% widthratio status_counts.completed total_reservations 100 %}{% else %}0{% endif %}%"></div>
+              </div>
+              <span class="status-bar-num">{{ status_counts.completed }}</span>
+            </div>
+            <div class="status-bar-row">
+              <span class="status-bar-label"><span class="res-status-badge status-cancelled">キャンセル</span></span>
+              <div class="status-bar-track">
+                <div class="status-bar-fill status-fill-cancelled"
+                     style="width:{% if total_reservations > 0 %}{% widthratio status_counts.cancelled total_reservations 100 %}{% else %}0{% endif %}%"></div>
+              </div>
+              <span class="status-bar-num">{{ status_counts.cancelled }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly chart -->
+        <div class="admin-card mt-3">
+          <h3 class="admin-card-title">月別予約数 <span class="admin-en-label">/ Monthly Reservations (6 months)</span></h3>
+          <div class="mini-chart">
+            {% for m in monthly_res %}
+            <div class="mini-bar-wrap">
+              <div class="mini-bar" style="height:{% if m.count > 0 %}{{ m.count }}{% else %}2{% endif %}px;min-height:4px;max-height:60px"
+                   title="{{ m.count }}件 / {{ m.count }} reservations"></div>
+              <div class="mini-bar-label">{{ m.month }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent reservations -->
+      <div class="col-lg-7">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">最近の予約 <span class="admin-en-label">/ Recent Reservations</span></h3>
+            <a href="{% url 'restaurant:admin_reservations' %}" class="admin-view-all">すべて見る / View all →</a>
+          </div>
+          <div class="dash-table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>名前 <span class="admin-th-en">/ Name</span></th>
+                  <th>日時 <span class="admin-th-en">/ Date & Time</span></th>
+                  <th>人数 <span class="admin-th-en">/ Guests</span></th>
+                  <th>ステータス <span class="admin-th-en">/ Status</span></th>
+                  <th>操作 <span class="admin-th-en">/ Action</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for res in recent_reservations %}
+                <tr>
+                  <td>{{ res.name }}</td>
+                  <td>{{ res.date }} {{ res.time }}</td>
+                  <td>{{ res.party_size }}名</td>
+                  <td>
+                    <span class="res-status-badge status-{{ res.status }}">
+                      {{ res.get_status_display }}
+                    </span>
+                  </td>
+                  <td>
+                    <select class="admin-select" onchange="quickStatus({{ res.pk }}, this.value)">
+                      <option value="pending"   {% if res.status == 'pending'   %}selected{% endif %}>確認待ち / Pending</option>
+                      <option value="confirmed" {% if res.status == 'confirmed' %}selected{% endif %}>確認済み / Confirmed</option>
+                      <option value="completed" {% if res.status == 'completed' %}selected{% endif %}>来店済み / Completed</option>
+                      <option value="cancelled" {% if res.status == 'cancelled' %}selected{% endif %}>キャンセル / Cancelled</option>
+                    </select>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popular items & Recent users -->
+    <div class="row g-4 mt-1">
+      <div class="col-lg-6">
+        <div class="admin-card">
+          <h3 class="admin-card-title">人気メニュー TOP 5 <span class="admin-en-label">/ Top 5 Popular Items</span></h3>
+          {% for item in popular_items %}
+          <div class="popular-item-row">
+            <span class="popular-rank">{{ forloop.counter }}</span>
+            <img src="{{ item.image_url }}" alt="{{ item.name_en }}" class="popular-thumb"/>
+            <div class="popular-info">
+              <div class="popular-name">{{ item.name_ja }}</div>
+              <div class="popular-sub">{{ item.name_en }} · {{ item.price_formatted }}</div>
+            </div>
+            <span class="popular-count">{{ item.order_count }} 注文</span>
+          </div>
+          {% empty %}
+          <p style="color:var(--smoke);font-size:.82rem">データなし / No data yet</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">新規会員 <span class="admin-en-label">/ Recent Members</span></h3>
+            <a href="{% url 'restaurant:admin_users' %}" class="admin-view-all">すべて / All →</a>
+          </div>
+          {% for u in recent_users %}
+          <div class="admin-user-row">
+            <div class="admin-user-avatar">{{ u.first_name|first|default:u.username|first|upper }}</div>
+            <div>
+              <div style="font-size:.85rem;font-weight:600">{{ u.get_full_name|default:u.username }}</div>
+              <div style="font-size:.72rem;color:var(--smoke)">{{ u.email }} · {{ u.date_joined|date:"Y/m/d" }}</div>
+            </div>
+          </div>
+          {% empty %}
+          <p style="color:var(--smoke);font-size:.82rem">会員なし / No members yet</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function quickStatus(pk, status) {
+  try {
+    const formData = new URLSearchParams();
+    formData.append('status', status);
+    
+    const res = await fetch(`/hanzen-admin/reservations/${pk}/update/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': window.CSRF_TOKEN,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: formData.toString()
+    });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    
+    const data = await res.json();
+    if (data.ok) {
+      showToast('ステータスを更新しました', 'Status updated');
+    } else {
+      showToast('エラーが発生しました', 'An error occurred');
+    }
+  } catch(e) {
+    console.error('Quick status error:', e);
+    showToast('エラーが発生しました', 'An error occurred');
+  }
+}
+
+// Animate mini chart bars on load
+window.addEventListener('load', () => {
+  document.querySelectorAll('.mini-bar').forEach((bar, i) => {
+    const h = bar.style.height;
+    bar.style.height = '0';
+    setTimeout(() => {
+      bar.style.transition = 'height .6s ease';
+      bar.style.height = h;
+    }, i * 100);
+  });
+});
+</script>
+{% endblock %}

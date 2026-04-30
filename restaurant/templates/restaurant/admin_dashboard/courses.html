@@ -1,0 +1,431 @@
+{% extends "restaurant/base.html" %}
+{% load humanize %}
+{% block title %}コース管理 / Courses — 花膳 Admin{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/admin_dashboard/_sidebar.html" %}
+  <div class="dash-main">
+
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">コース管理 <span class="admin-en-label">/ Course Management</span></h1>
+        <p class="dash-subtitle">{{ courses.count }} コース / {{ courses.count }} courses</p>
+      </div>
+      <button class="btn-gold" style="font-size:.74rem" onclick="openAddModal()">
+        <i class="fa-solid fa-plus fa-sm"></i>
+        新規追加 / Add Course
+      </button>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>ランク <span class="admin-th-en">/ Tier</span></th>
+              <th>名前 <span class="admin-th-en">/ Name</span></th>
+              <th>品数 <span class="admin-th-en">/ Courses</span></th>
+              <th>価格 <span class="admin-th-en">/ Price</span></th>
+              <th>画像 <span class="admin-th-en">/ Image</span></th>
+              <th>状態 <span class="admin-th-en">/ Status</span></th>
+              <th>操作 <span class="admin-th-en">/ Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for course in courses %}
+            <tr id="course-row-{{ course.pk }}">
+              <td>
+                <span class="dish-badge" style="position:static;display:inline-block;background:var(--aka-dark)">
+                  {{ course.get_tier_display }}
+                </span>
+              </td>
+              <td>
+                <strong>{{ course.name_ja }}</strong><br>
+                <small style="color:var(--smoke)">{{ course.name_en }}</small>
+              </td>
+              <td>{{ course.courses }}品</td>
+              <td style="color:var(--aka);font-family:var(--font-en);font-weight:600">¥{{ course.price|intcomma }}</td>
+              <td>
+                <img src="{{ course.image_url }}" style="width:52px;height:52px;object-fit:cover;border-radius:2px;filter:sepia(.1)"
+                     onerror="this.src='https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=100&q=60'" alt=""/>
+              </td>
+              <td>
+                <span class="avail-toggle {% if course.is_active %}avail-on{% else %}avail-off{% endif %}" id="avail-{{ course.pk }}">
+                  {% if course.is_active %}提供中 / Active{% else %}停止中 / Inactive{% endif %}
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+                  <button class="admin-action-btn" onclick="openEditModal({{ course.pk }})">
+                    <i class="fa-solid fa-pen-to-square"></i> 編集 / Edit
+                  </button>
+                  <button class="admin-action-btn" onclick="toggleCourse({{ course.pk }})">
+                    <i class="fa-solid fa-toggle-{% if course.is_active %}on{% else %}off{% endif %}" id="toggle-icon-{{ course.pk }}"></i>
+                    <span id="toggle-lbl-{{ course.pk }}">{% if course.is_active %}停止 / Stop{% else %}再開 / Resume{% endif %}</span>
+                  </button>
+                  <button class="admin-action-btn admin-del-action" onclick="deleteCourse({{ course.pk }}, '{{ course.name_ja|escapejs }}')">
+                    <i class="fa-solid fa-trash-can"></i> 削除 / Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--smoke)">
+              コースがありません / No courses found
+            </td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div id="courseModal" class="modal-overlay" style="display:none">
+  <div class="modal-box" style="max-width:720px">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">コース追加 / Add Course</h3>
+      <button class="modal-close" onclick="closeModal('courseModal')">✕</button>
+    </div>
+    <form id="courseForm" onsubmit="submitCourseForm(event)" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" id="editCourseId" value=""/>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">ランク <span style="font-size:.85em;color:var(--smoke)">/ Tier</span> <span style="color:var(--aka)">*</span></label>
+          <select name="tier" id="f_tier" class="form-select" required onchange="updateSubmitButton()">
+            <option value="">選択してください / Select</option>
+            <option value="matsu">松 Matsu — 最高級 / Premium</option>
+            <option value="chiku">竹 Chiku — 中級 / Mid-range</option>
+            <option value="ume">梅 Ume — 入門 / Entry</option>
+            <option value="omakase">おまかせ / Omakase — シェフのお任せ</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">価格 / Price (¥) <span style="color:var(--aka)">*</span></label>
+          <input type="number" name="price" id="f_price" class="form-control" required min="0" oninput="updateSubmitButton()"/>
+          <div class="field-error" id="err_price"></div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">品数 <span style="font-size:.85em;color:var(--smoke)">/ Courses</span> <span style="color:var(--aka)">*</span></label>
+          <input type="number" name="courses" id="f_courses" class="form-control" required min="1" value="5" oninput="updateSubmitButton()"/>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">名前（日本語） / Name (JP) <span style="color:var(--aka)">*</span></label>
+          <input type="text" name="name_ja" id="f_name_ja" class="form-control" required placeholder="例）松コース" oninput="updateSubmitButton()"/>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">名前（英語） / Name (EN) <span style="color:var(--aka)">*</span></label>
+          <input type="text" name="name_en" id="f_name_en" class="form-control" required placeholder="e.g. Matsu Course" oninput="updateSubmitButton()"/>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">説明（日本語） / Description (JP)</label>
+          <textarea name="description_ja" id="f_desc_ja" class="form-control" rows="3" placeholder="日本語の説明文"></textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">説明（英語） / Description (EN)</label>
+          <textarea name="description_en" id="f_desc_en" class="form-control" rows="3" placeholder="English description"></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label">画像 / Image</label>
+          
+          <!-- File Upload -->
+          <div class="mb-2">
+            <input type="file" name="image_file" id="f_image_file" class="form-control" 
+                  accept="image/*" onchange="handleCourseFileSelect(this)"
+                  style="padding:.4rem;font-size:.82rem"/>
+            <small id="fileUploadLabel" style="color:var(--smoke);font-size:.72rem">画像を選択 / Choose Image</small>
+          </div>
+          
+          <!-- OR URL input -->
+          <label class="form-label" style="font-size:.65rem;color:var(--smoke);margin-top:.8rem">
+            または画像URL / Or Image URL
+          </label>
+          <div style="display:flex;gap:.5rem;align-items:flex-start">
+            <input type="text" name="image_url" id="f_image_url" class="form-control"
+                  placeholder="https://... or /media/..." oninput="previewCourseImage(this.value)"/>
+            <button type="button" class="admin-action-btn" style="white-space:nowrap;padding:.55rem .9rem" 
+                    onclick="previewCourseImage(document.getElementById('f_image_url').value)">
+              <i class="fa-solid fa-eye"></i> Preview
+            </button>
+          </div>
+          
+          <!-- Image Preview -->
+          <div id="courseImagePreview" style="display:none;margin-top:.6rem">
+            <img id="coursePreviewImg" src="" alt="Preview" 
+                style="max-width:180px;max-height:120px;object-fit:cover;border:1px solid var(--border);border-radius:2px"/>
+            <span id="coursePreviewError" style="display:none;color:var(--aka);font-size:.75rem">
+              ⚠ 画像を読み込めませんでした / Could not load image
+            </span>
+          </div>
+        </div>
+        <div class="col-md-8 d-flex align-items-end pb-1">
+          <label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;cursor:pointer;color:var(--smoke)">
+            <input type="checkbox" name="is_active" id="f_active" checked style="accent-color:var(--aka)"/>
+            提供中 / Active
+          </label>
+        </div>
+      </div>
+      <div class="d-flex gap-3 mt-4">
+        <button type="submit" class="btn-submit" style="width:auto;padding:.8rem 2rem" id="courseSubmitBtn" disabled>
+          <i class="fa-solid fa-floppy-disk me-2"></i>
+          <span id="courseSubmitLabel">追加する / Add</span>
+        </button>
+        <button type="button" class="dash-cancel-btn" onclick="closeModal('courseModal')">
+          キャンセル / Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="deleteModal" class="modal-overlay" style="display:none">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-header">
+      <h3 class="modal-title">削除確認 / Confirm Delete</h3>
+      <button class="modal-close" onclick="closeModal('deleteModal')">✕</button>
+    </div>
+    <p style="font-size:.88rem;color:#5a4840;margin-bottom:1.5rem;line-height:1.8">
+      <strong id="deleteItemName"></strong> を削除しますか？<br>
+      <span style="color:var(--aka);font-size:.8rem">この操作は元に戻せません / This action cannot be undone.</span>
+    </p>
+    <div class="d-flex gap-3">
+      <button class="btn-submit" style="width:auto;padding:.7rem 1.5rem;background:var(--aka)" onclick="confirmDeleteCourse()">
+        <i class="fa-solid fa-trash-can me-1"></i> 削除 / Delete
+      </button>
+      <button class="dash-cancel-btn" onclick="closeModal('deleteModal')">キャンセル / Cancel</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let deleteTargetPk = null;
+
+// ── Enable/disable submit button based on required fields ──
+function updateSubmitButton() {
+  const btn = document.getElementById('courseSubmitBtn');
+  const tier = document.getElementById('f_tier')?.value;
+  const price = document.getElementById('f_price')?.value;
+  const courses = document.getElementById('f_courses')?.value;
+  const nameJa = document.getElementById('f_name_ja')?.value.trim();
+  const nameEn = document.getElementById('f_name_en')?.value.trim();
+  
+  const allFilled = tier && price && courses && nameJa && nameEn;
+  
+  if (btn) {
+    btn.disabled = !allFilled;
+    btn.style.opacity = allFilled ? '1' : '0.5';
+    btn.style.cursor = allFilled ? 'pointer' : 'not-allowed';
+  }
+}
+
+// ── Modal helpers ──
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = 'コース追加 / Add Course';
+  document.getElementById('courseSubmitLabel').textContent = '追加する / Add';
+  document.getElementById('editCourseId').value = '';
+  document.getElementById('courseForm').reset();
+  document.getElementById('f_active').checked = true;
+  document.getElementById('f_courses').value = 5;
+  document.getElementById('f_tier').value = '';
+  document.getElementById('courseImagePreview').style.display = 'none';
+  document.getElementById('coursePreviewImg').src = '';
+  document.getElementById('coursePreviewError').style.display = 'none';
+  document.getElementById('fileUploadLabel').textContent = '画像を選択 / Choose Image';
+  updateSubmitButton();
+  openModal('courseModal');
+}
+
+async function openEditModal(pk) {
+  try {
+    const res  = await fetch(`/hanzen-admin/courses/${pk}/edit/`);
+    if (!res.ok) throw new Error('Failed to load');
+    const data = await res.json();
+    
+    document.getElementById('modalTitle').textContent = 'コース編集 / Edit Course';
+    document.getElementById('courseSubmitLabel').textContent = '保存する / Save';
+    document.getElementById('editCourseId').value = pk;
+    document.getElementById('f_tier').value = data.tier;
+    document.getElementById('f_name_ja').value = data.name_ja;
+    document.getElementById('f_name_en').value = data.name_en;
+    document.getElementById('f_desc_ja').value = data.description_ja || '';
+    document.getElementById('f_desc_en').value = data.description_en || '';
+    document.getElementById('f_price').value = data.price;
+    document.getElementById('f_courses').value = data.courses;
+    document.getElementById('f_image_url').value = data.image_url || '';
+    document.getElementById('f_active').checked = data.is_active;
+    document.getElementById('f_image_file').value = '';
+    
+    if (data.image_url) {
+      previewCourseImage(data.image_url);
+    } else {
+      document.getElementById('courseImagePreview').style.display = 'none';
+    }
+    document.getElementById('fileUploadLabel').textContent = '画像を変更 / Change Image';
+    updateSubmitButton();
+    openModal('courseModal');
+  } catch(e) {
+    showToast('エラー / Error', 'Failed to load course data');
+  }
+}
+
+// ── Image preview ──
+function previewCourseImage(url) {
+  const wrap = document.getElementById('courseImagePreview');
+  const img  = document.getElementById('coursePreviewImg');
+  const err  = document.getElementById('coursePreviewError');
+  if (!url) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  err.style.display  = 'none';
+  img.style.display  = 'block';
+  
+  if (url.startsWith('/')) {
+    img.src = window.location.origin + url;
+  } else {
+    img.src = url;
+  }
+  
+  img.onerror = () => { img.style.display = 'none'; err.style.display = 'block'; };
+  img.onload = () => { img.style.display = 'block'; err.style.display = 'none'; };
+}
+
+// ── File upload preview ──
+function handleCourseFileSelect(input) {
+  const file = input.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('f_image_url').value = '';
+      previewCourseImage(e.target.result);
+      document.getElementById('fileUploadLabel').textContent = file.name;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// ── Submit form ──
+async function submitCourseForm(e) {
+  e.preventDefault();
+  const pk = document.getElementById('editCourseId').value;
+  const url = pk ? `/hanzen-admin/courses/${pk}/edit/` : `{% url 'restaurant:admin_course_add' %}`;
+  const fd = new FormData(e.target);
+  
+  const imageFile = document.getElementById('f_image_file').files[0];
+  if (imageFile) {
+    fd.set('image_file', imageFile);
+  }
+  
+  const btn = document.getElementById('courseSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>処理中 / Processing...';
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 
+        'X-CSRFToken': window.CSRF_TOKEN, 
+        'X-Requested-With': 'XMLHttpRequest' 
+      },
+      body: fd,
+    });
+    
+    console.log('Response status:', res.status);
+    console.log('Response headers:', res.headers.get('content-type'));
+    
+    // Check if response is JSON
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const data = await res.json();
+      console.log('Response data:', data);
+      
+      if (data.ok) {
+        showToast('保存しました / Saved successfully', '');
+        closeModal('courseModal');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        showToast('エラー / Error', data.error || 'Please check the form');
+      }
+    } else {
+      // If not JSON, the request was probably redirected
+      const text = await res.text();
+      console.log('Non-JSON response:', text.substring(0, 200));
+      
+      if (res.ok) {
+        showToast('保存しました / Saved successfully', '');
+        closeModal('courseModal');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        throw new Error(`HTTP ${res.status}`);
+      }
+    }
+  } catch(err) {
+    console.error('Submit error:', err);
+    showToast('エラー / Error', 'Something went wrong');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-2"></i><span id="courseSubmitLabel">保存する / Save</span>';
+  }
+}
+
+// ── Delete ──
+function deleteCourse(pk, name) {
+  deleteTargetPk = pk;
+  document.getElementById('deleteItemName').textContent = name;
+  openModal('deleteModal');
+}
+
+async function confirmDeleteCourse() {
+  try {
+    const res = await fetch(`/hanzen-admin/courses/${deleteTargetPk}/delete/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.CSRF_TOKEN, 'X-Requested-With': 'XMLHttpRequest' },
+      body: '{}',
+    });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('course-row-' + deleteTargetPk)?.remove();
+      closeModal('deleteModal');
+      showToast('削除しました / Deleted', '');
+    }
+  } catch(e) {
+    showToast('エラー / Error', 'Failed to delete');
+  }
+}
+
+// ── Toggle ──
+async function toggleCourse(pk) {
+  try {
+    const res = await fetch(`/hanzen-admin/courses/${pk}/toggle/`, {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.CSRF_TOKEN, 'X-Requested-With': 'XMLHttpRequest' },
+      body: '{}',
+    });
+    const data = await res.json();
+    if (data.ok) {
+      const badge = document.getElementById('avail-' + pk);
+      const icon  = document.getElementById('toggle-icon-' + pk);
+      const lbl   = document.getElementById('toggle-lbl-' + pk);
+      if (data.is_active) {
+        badge.textContent = '提供中 / Active';
+        badge.className = 'avail-toggle avail-on';
+        icon.className = 'fa-solid fa-toggle-on';
+        lbl.textContent = '停止 / Stop';
+      } else {
+        badge.textContent = '停止中 / Inactive';
+        badge.className = 'avail-toggle avail-off';
+        icon.className = 'fa-solid fa-toggle-off';
+        lbl.textContent = '再開 / Resume';
+      }
+      showToast('コースを更新しました / Updated', '');
+    }
+  } catch(e) {
+    showToast('エラー / Error', 'Failed to toggle');
+  }
+}
+</script>
+{% endblock %}

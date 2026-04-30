@@ -1,0 +1,118 @@
+{% extends "restaurant/base.html" %}
+{% block title %}営業時間 / Business Hours — 花膳 Admin{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/admin_dashboard/_sidebar.html" %}
+  <div class="dash-main">
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">営業時間管理 <span class="admin-en-label">/ Business Hours</span></h1>
+        <p class="dash-subtitle">定休日・営業時間を設定 / Set closed days and opening times</p>
+      </div>
+    </div>
+
+    <div class="dash-section">
+      <div id="hoursTable">
+        {% for h in hours %}
+        <div class="hours-row" id="hours-{{ h.pk }}" data-id="{{ h.pk }}">
+          <div class="hours-day">
+            <span class="hours-day-label">{{ h.get_day_display }}</span>
+            <label class="hours-closed-toggle">
+              <input type="checkbox" class="closed-cb" data-id="{{ h.pk }}" {% if h.is_closed %}checked{% endif %} onchange="toggleClosed({{ h.pk }}, this.checked)"/>
+              <span class="txt" data-ja="定休日" data-en="Closed">定休日</span>
+            </label>
+          </div>
+          <div class="hours-times {% if h.is_closed %}hours-disabled{% endif %}" id="times-{{ h.pk }}">
+            <div class="hours-session">
+              <span class="hours-session-label txt" data-ja="ランチ" data-en="Lunch">ランチ</span>
+              <input type="time" class="hours-input" id="lunch_open_{{ h.pk }}"
+                     value="{{ h.lunch_open|default:'' }}" {% if h.is_closed %}disabled{% endif %}/>
+              <span style="color:var(--smoke)">〜</span>
+              <input type="time" class="hours-input" id="lunch_close_{{ h.pk }}"
+                     value="{{ h.lunch_close|default:'' }}" {% if h.is_closed %}disabled{% endif %}/>
+            </div>
+            <div class="hours-session">
+              <span class="hours-session-label txt" data-ja="ディナー" data-en="Dinner">ディナー</span>
+              <input type="time" class="hours-input" id="dinner_open_{{ h.pk }}"
+                     value="{{ h.dinner_open|default:'' }}" {% if h.is_closed %}disabled{% endif %}/>
+              <span style="color:var(--smoke)">〜</span>
+              <input type="time" class="hours-input" id="dinner_close_{{ h.pk }}"
+                     value="{{ h.dinner_close|default:'' }}" {% if h.is_closed %}disabled{% endif %}/>
+            </div>
+            <div class="hours-session">
+              <span class="hours-session-label txt" data-ja="メモ(JP)" data-en="Note(JP)">メモ</span>
+              <input type="text" class="hours-input hours-note" id="note_ja_{{ h.pk }}"
+                     value="{{ h.note_ja }}" placeholder="例）LO 21:30"
+                     {% if h.is_closed %}disabled{% endif %}/>
+              <span class="hours-session-label" style="margin-left:.5rem">EN</span>
+              <input type="text" class="hours-input hours-note" id="note_en_{{ h.pk }}"
+                     value="{{ h.note_en }}" placeholder="e.g. LO 21:30"
+                     {% if h.is_closed %}disabled{% endif %}/>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap">
+        <button class="btn-submit" style="width:auto;padding:.8rem 2.5rem" onclick="saveHours()">
+          <i class="fa-solid fa-floppy-disk me-2"></i>
+          <span class="txt" data-ja="保存する" data-en="Save Changes">保存する</span>
+        </button>
+      </div>
+
+      <!-- Save feedback -->
+      <div id="saveFeedback" style="display:none;margin-top:1rem;padding:.8rem 1.2rem;background:rgba(90,110,58,.1);border:1px solid var(--matcha);color:var(--matcha);font-size:.82rem">
+        ✓ <span class="txt" data-ja="営業時間を保存しました。" data-en="Business hours saved successfully.">営業時間を保存しました。</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleClosed(id, closed) {
+  const wrap = document.getElementById('times-' + id);
+  wrap.classList.toggle('hours-disabled', closed);
+  wrap.querySelectorAll('input').forEach(inp => inp.disabled = closed);
+}
+
+async function saveHours() {
+  const rows  = document.querySelectorAll('.hours-row');
+  const data  = [];
+  rows.forEach(row => {
+    const id = row.dataset.id;
+    data.push({
+      id:           parseInt(id),
+      is_closed:    document.querySelector(`.closed-cb[data-id="${id}"]`).checked,
+      lunch_open:   document.getElementById('lunch_open_'  + id).value  || null,
+      lunch_close:  document.getElementById('lunch_close_' + id).value  || null,
+      dinner_open:  document.getElementById('dinner_open_' + id).value  || null,
+      dinner_close: document.getElementById('dinner_close_'+ id).value  || null,
+      note_ja:      document.getElementById('note_ja_'     + id).value,
+      note_en:      document.getElementById('note_en_'     + id).value,
+    });
+  });
+
+  try {
+    const res = await fetch('{% url "restaurant:admin_business_hours_save" %}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.CSRF_TOKEN },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (result.ok) {
+      const fb = document.getElementById('saveFeedback');
+      fb.style.display = 'block';
+      setTimeout(() => fb.style.display = 'none', 3000);
+      showToast('営業時間を保存しました', 'Business hours saved');
+    } else {
+      showToast('エラー / Error', result.error || 'Save failed');
+    }
+  } catch(e) {
+    showToast('エラー / Error', 'Something went wrong');
+  }
+}
+</script>
+{% endblock %}

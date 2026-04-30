@@ -1,0 +1,260 @@
+{% extends "restaurant/base.html" %}
+{% load i18n %}
+{% block title %}お問い合わせ / Contact — 花膳{% endblock %}
+{% block content %}
+
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('/media/site_images/light_img.jfif')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content fade-in">
+    <span class="section-tag" style="color:var(--aka)">
+      <span class="txt" data-ja="お問い合わせ" data-en="Contact Us">お問い合わせ</span>
+    </span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="お問い合わせ" data-en="Contact">お問い合わせ</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="お問い合わせ" data-en="Get in Touch">Get in Touch</span>
+    </p>
+  </div>
+</div>
+
+<section style="padding:5rem 0;background:var(--shiro)">
+  <div class="container">
+    <div class="row gy-5">
+
+      <!-- Contact Form -->
+      <div class="col-lg-7 fade-in">
+        <div class="res-form-wrap">
+          <h2 style="font-family:var(--font-jp);font-size:1.1rem;letter-spacing:.08em;margin-bottom:.4rem;color:var(--sumi)">
+            <span class="txt" data-ja="お問い合わせフォーム" data-en="Contact Form">お問い合わせフォーム</span>
+          </h2>
+          <p style="font-size:.78rem;color:var(--smoke);margin-bottom:2rem" class="txt"
+             data-ja="通常2営業日以内にご返信いたします。お急ぎの場合はお電話ください。"
+             data-en="We typically respond within 2 business days. For urgent enquiries, please call us.">
+            通常2営業日以内にご返信いたします。お急ぎの場合はお電話ください。
+          </p>
+
+          {% if messages %}
+            {% for msg in messages %}
+            <div class="alert-msg alert-{{ msg.tags }} mb-3" style="position:static;animation:none">{{ msg }}</div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post" id="contactForm">
+            {% csrf_token %}
+            <div class="row g-4">
+
+              <!-- Name -->
+              <div class="col-md-6">
+                <label class="form-label">
+                  <span class="txt" data-ja="お名前" data-en="Full Name">お名前</span>
+                  <span style="color:var(--aka);margin-left:.2rem">*</span>
+                </label>
+                <input type="text" name="name" id="id_name" class="form-control"
+                  placeholder="田中 太郎 / Taro Tanaka"
+                  value="{{ form.name.value|default:'' }}" required/>
+                {% if form.name.errors %}<div class="field-error">{{ form.name.errors.0 }}</div>{% endif %}
+              </div>
+
+              <!-- Email -->
+              <div class="col-md-6">
+                <label class="form-label">
+                  <span class="txt" data-ja="メールアドレス" data-en="Email Address">メールアドレス</span>
+                  <span style="color:var(--aka);margin-left:.2rem">*</span>
+                </label>
+                <input type="email" name="email" id="id_email" class="form-control"
+                  placeholder="taro@example.com"
+                  value="{{ form.email.value|default:'' }}" required/>
+                {% if form.email.errors %}<div class="field-error">{{ form.email.errors.0 }}</div>{% endif %}
+              </div>
+
+              <!-- Subject -->
+              <div class="col-12">
+                <label class="form-label">
+                  <span class="txt" data-ja="件名" data-en="Subject">件名</span>
+                  <span style="color:var(--aka);margin-left:.2rem">*</span>
+                </label>
+                <select name="subject" id="id_subject" class="form-select" required>
+                  {% for value, label in form.fields.subject.choices %}
+                    <option value="{{ value }}" {% if form.subject.value == value %}selected{% endif %}>
+                      {{ label }}
+                    </option>
+                  {% endfor %}
+                </select>
+                {% if form.subject.errors %}<div class="field-error">{{ form.subject.errors.0 }}</div>{% endif %}
+              </div>
+
+              <!-- Message -->
+              <div class="col-12">
+                <label class="form-label">
+                  <span class="txt" data-ja="メッセージ" data-en="Message">メッセージ</span>
+                  <span style="color:var(--aka);margin-left:.2rem">*</span>
+                </label>
+                <textarea name="message" id="id_message" rows="6" class="form-control"
+                  placeholder="お問い合わせ内容をご記入ください。&#10;Please enter your message here." required>{{ form.message.value|default:'' }}</textarea>
+                {% if form.message.errors %}<div class="field-error">{{ form.message.errors.0 }}</div>{% endif %}
+              </div>
+
+            </div>
+            
+            <button type="submit" id="contactSubmitBtn" class="btn-submit mt-4" disabled>
+              <span class="txt" data-ja="送信する" data-en="Send Message">送信する</span>
+              <i class="fa-solid fa-paper-plane ms-2"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="col-lg-4 offset-lg-1 fade-in delay-2">
+
+        <div class="info-block">
+          <h3 class="info-block-title">
+            <span class="txt" data-ja="電話でのお問い合わせ" data-en="Phone">電話でのお問い合わせ</span>
+          </h3>
+          <a href="tel:{{ settings.contact_phone }}" style="font-family:var(--font-en);font-size:1.8rem;color:var(--aka);text-decoration:none;display:block;margin-bottom:.3rem">
+            {{ settings.contact_phone }}
+          </a>
+          <p style="font-size:.78rem;color:var(--smoke);line-height:1.8">
+            <span class="txt" data-ja="受付時間：{{ settings.contact_hours_ja }}" data-en="Hours: {{ settings.contact_hours_en }}">受付時間：{{ settings.contact_hours_ja }}</span><br>
+            <span class="txt" data-ja="{{ settings.contact_note_ja }}" data-en="{{ settings.contact_note_en }}">{{ settings.contact_note_ja }}</span>
+          </p>
+        </div>
+
+        <div class="info-block">
+          <h3 class="info-block-title">
+            <span class="txt" data-ja="メール" data-en="Email">メール</span>
+          </h3>
+          <a href="mailto:info@hanzen.jp" style="color:var(--smoke);text-decoration:none;font-size:.9rem">
+            info@hanzen.jp
+          </a>
+        </div>
+
+        <div class="info-block">
+          <h3 class="info-block-title">
+            <span class="txt" data-ja="住所" data-en="Address">住所</span>
+          </h3>
+          <p style="font-size:.85rem;color:#6b5f52;line-height:1.9" class="txt"
+             data-ja="〒104-0061<br>東京都中央区銀座6-10-1<br>銀座駅 A3出口より徒歩2分"
+             data-en="6-10-1 Ginza, Chuo-ku<br>Tokyo 104-0061, Japan<br>2 min walk from Ginza Stn. Exit A3">
+            〒104-0061<br>東京都中央区銀座6-10-1<br>銀座駅 A3出口より徒歩2分
+          </p>
+        </div>
+
+        <div class="info-block">
+          <h3 class="info-block-title">SNS</h3>
+          <div class="footer-social" style="margin-top:.5rem">
+            <a href="https://www.instagram.com/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://x.com/" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.facebook.com/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.line.me/" target="_blank" aria-label="LINE"><i class="fab fa-line"></i></a>
+          </div>
+        </div>
+
+        <div class="info-block">
+          <h3 class="info-block-title">
+            <span class="txt" data-ja="よくある質問" data-en="FAQ">よくある質問</span>
+          </h3>
+          <div class="faq-list">
+            <div class="faq-item">
+              <div class="faq-q">
+                <span class="txt" data-ja="Q. ドレスコードはありますか？" data-en="Q. Is there a dress code?">Q. ドレスコードはありますか？</span>
+              </div>
+              <div class="faq-a">
+                <span class="txt" data-ja="スマートカジュアル以上をお願いしております。" data-en="Smart casual or above is requested.">スマートカジュアル以上をお願いしております。</span>
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-q">
+                <span class="txt" data-ja="Q. 個室はありますか？" data-en="Q. Do you have private rooms?">Q. 個室はありますか？</span>
+              </div>
+              <div class="faq-a">
+                <span class="txt" data-ja="はい、2〜10名様用の個室をご用意しております。" data-en="Yes, private rooms for 2–10 guests are available.">はい、2〜10名様用の個室をご用意しております。</span>
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-q">
+                <span class="txt" data-ja="Q. アレルギー対応はできますか？" data-en="Q. Can you accommodate allergies?">Q. アレルギー対応はできますか？</span>
+              </div>
+              <div class="faq-a">
+                <span class="txt" data-ja="はい、ご予約時にお知らせください。" data-en="Yes, please let us know at the time of reservation.">はい、ご予約時にお知らせください。</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('contactForm');
+  const submitBtn = document.getElementById('contactSubmitBtn');
+  
+  if (!form || !submitBtn) return;
+  
+  const requiredFields = form.querySelectorAll('[required]');
+  
+  function checkFormValidity() {
+    let allFilled = true;
+    
+    requiredFields.forEach(field => {
+      if (!field.value.trim()) {
+        allFilled = false;
+      } else if (field.type === 'select-one' && field.value === '') {
+        allFilled = false;
+      }
+    });
+    
+    submitBtn.disabled = !allFilled;
+    
+    if (allFilled) {
+      submitBtn.style.opacity = '1';
+      submitBtn.style.cursor = 'pointer';
+    } else {
+      submitBtn.style.opacity = '0.6';
+      submitBtn.style.cursor = 'not-allowed';
+    }
+  }
+  
+  // Check on input change
+  requiredFields.forEach(field => {
+    field.addEventListener('input', checkFormValidity);
+    field.addEventListener('change', checkFormValidity);
+  });
+  
+  // Initial check
+  checkFormValidity();
+  
+  // Real-time validation feedback
+  function validateField(input) {
+    // Remove existing error message
+    const existingError = input.parentElement.querySelector('.field-error');
+    if (existingError) existingError.remove();
+    
+    if (input.required && !input.value.trim()) {
+      input.style.borderColor = 'var(--aka)';
+    } else if (input.type === 'email' && input.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim())) {
+      input.style.borderColor = 'var(--aka)';
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'field-error';
+      errorDiv.textContent = '有効なメールアドレスを入力してください / Please enter a valid email address.';
+      input.parentElement.appendChild(errorDiv);
+    } else if (input.value.trim()) {
+      input.style.borderColor = 'var(--matcha)';
+    } else {
+      input.style.borderColor = '';
+    }
+  }
+  
+  requiredFields.forEach(field => {
+    field.addEventListener('blur', () => validateField(field));
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,511 @@
+{% extends "restaurant/base.html" %}
+{% block title %}メニュー管理 / Menu — 花膳 Admin{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/admin_dashboard/_sidebar.html" %}
+  <div class="dash-main">
+
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">メニュー管理 <span class="admin-en-label">/ Menu Management</span></h1>
+        <p class="dash-subtitle">{{ items.count }} アイテム / {{ items.count }} items</p>
+      </div>
+      <button class="btn-gold" style="font-size:.74rem" onclick="openAddModal()">
+        <i class="fa-solid fa-plus fa-sm"></i>
+        新規追加 / Add Item
+      </button>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="d-flex gap-3 mb-3 align-items-center">
+      <form method="get" class="d-flex gap-2" style="flex:1;max-width:400px">
+        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="検索 / Search items..." 
+               class="form-control" style="font-size:.85rem"/>
+        <button type="submit" class="btn-submit" style="padding:.5rem 1rem;font-size:.8rem">
+          <i class="fa-solid fa-search"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Filter by category -->
+    <div class="d-flex gap-2 flex-wrap mb-3">
+      <a href="{% url 'restaurant:admin_menu' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if not request.GET.cat %}active{% endif %}">全て / All</a>
+      {% for cat in categories %}
+      <a href="?cat={{ cat.slug }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="admin-filter-btn {% if request.GET.cat == cat.slug %}active{% endif %}">
+        {{ cat.name_ja }} / {{ cat.name_en }}
+      </a>
+      {% endfor %}
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>画像 <span class="admin-th-en">/ Image</span></th>
+              <th>名前 <span class="admin-th-en">/ Name</span></th>
+              <th>カテゴリ <span class="admin-th-en">/ Category</span></th>
+              <th>価格 <span class="admin-th-en">/ Price</span></th>
+              <th>バッジ <span class="admin-th-en">/ Badge</span></th>
+              <th>状態 <span class="admin-th-en">/ Status</span></th>
+              <th>操作 <span class="admin-th-en">/ Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr id="item-row-{{ item.pk }}">
+              <td>
+                <img src="{{ item.image_url }}" style="width:52px;height:52px;object-fit:cover;border-radius:2px;filter:sepia(.1)"
+                    onerror="this.src='https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=100&q=60'"/>
+              </td>
+              <td>
+                <strong>{{ item.name_ja }}</strong><br>
+                <small style="color:var(--smoke)">{{ item.name_en }}</small>
+              </td>
+              <td>{{ item.category.name_ja }}<br><small style="color:var(--smoke)">{{ item.category.name_en }}</small></td>
+              <td style="color:var(--aka);font-family:var(--font-en);font-weight:600">{{ item.price_formatted }}</td>
+              <td>{% if item.badge %}<span class="dish-badge badge-{{ item.badge }}" style="position:static;display:inline-block">{{ item.badge|upper }}</span>{% else %}—{% endif %}</td>
+              <td>
+                <span class="avail-toggle {% if item.is_available %}avail-on{% else %}avail-off{% endif %}" id="avail-{{ item.pk }}">
+                  {% if item.is_available %}提供中 / Available{% else %}停止中 / Unavailable{% endif %}
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+                  <button class="admin-action-btn" data-pk="{{ item.pk }}" onclick="openEditModal(this)">
+                    <i class="fa-solid fa-pen-to-square"></i> 編集 / Edit
+                  </button>
+                  <button class="admin-action-btn" data-pk="{{ item.pk }}" onclick="toggleItem(this)">
+                    <i class="fa-solid fa-toggle-{% if item.is_available %}on{% else %}off{% endif %}" id="toggle-icon-{{ item.pk }}"></i>
+                    <span id="toggle-lbl-{{ item.pk }}">{% if item.is_available %}停止 / Stop{% else %}再開 / Resume{% endif %}</span>
+                  </button>
+                  <button class="admin-action-btn admin-del-action" data-pk="{{ item.pk }}" data-name="{{ item.name_ja|escapejs }}" onclick="deleteItem(this)">
+                    <i class="fa-solid fa-trash-can"></i> 削除 / Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--smoke)">
+              メニューがありません / No items found
+            </td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div id="menuModal" class="modal-overlay" style="display:none">
+  <div class="modal-box" style="max-width:720px">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">メニュー追加 / Add Menu Item</h3>
+      <button class="modal-close" onclick="closeModal('menuModal')">✕</button>
+    </div>
+    <form id="menuForm" onsubmit="submitMenuForm(event)">
+      {% csrf_token %}
+      <input type="hidden" id="editItemId" value=""/>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">カテゴリ / Category <span style="color:var(--aka)">*</span></label>
+          <select name="category" id="f_category" class="form-select" required>
+            {% for cat in categories %}
+            <option value="{{ cat.pk }}">{{ cat.name_ja }} / {{ cat.name_en }}</option>
+            {% endfor %}
+          </select>
+          <div class="field-error" id="err_category"></div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">価格 / Price (¥) <span style="color:var(--aka)">*</span></label>
+          <input type="number" name="price" id="f_price" class="form-control" required min="0"/>
+          <div class="field-error" id="err_price"></div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">順序 / Order</label>
+          <input type="number" name="order" id="f_order" class="form-control" value="0" min="0"/>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">名前（日本語） / Name (JP) <span style="color:var(--aka)">*</span></label>
+          <input type="text" name="name_ja" id="f_name_ja" class="form-control" required placeholder="例）大トロ握り"/>
+          <div class="field-error" id="err_name_ja"></div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">名前（英語） / Name (EN) <span style="color:var(--aka)">*</span></label>
+          <input type="text" name="name_en" id="f_name_en" class="form-control" required placeholder="e.g. Otoro Nigiri"/>
+          <div class="field-error" id="err_name_en"></div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">説明（日本語） / Description (JP)</label>
+          <textarea name="description_ja" id="f_desc_ja" class="form-control" rows="3" placeholder="日本語の説明文"></textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">説明（英語） / Description (EN)</label>
+          <textarea name="description_en" id="f_desc_en" class="form-control" rows="3" placeholder="English description"></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label">画像 / Image</label>
+          
+          <!-- File Upload -->
+          <div class="mb-2">
+            <input type="file" name="image_file" id="f_image_file" class="form-control" 
+                  accept="image/*" onchange="handleFileSelect(this)"
+                  style="padding:.4rem;font-size:.82rem"/>
+            <small id="fileUploadLabel" style="color:var(--smoke);font-size:.72rem">画像を選択 / Choose Image</small>
+          </div>
+          
+          <!-- OR URL input -->
+          <label class="form-label" style="font-size:.65rem;color:var(--smoke);margin-top:.8rem">
+            <span data-ja="または画像URL" data-en="Or Image URL">または画像URL / Or Image URL</span>
+          </label>
+          <div style="display:flex;gap:.5rem;align-items:flex-start">
+            <input type="text" name="image_url" id="f_image_url" class="form-control"
+              placeholder="https://... or /media/..." oninput="previewImage(this.value)"/>
+            <button type="button" class="admin-action-btn" style="white-space:nowrap;padding:.55rem .9rem" 
+                    onclick="previewImage(document.getElementById('f_image_url').value)">
+              <i class="fa-solid fa-eye"></i> Preview
+            </button>
+          </div>
+          
+          <!-- Image Preview -->
+          <div id="imagePreview" style="display:none;margin-top:.6rem">
+            <img id="previewImg" src="" alt="Preview" 
+                style="max-width:180px;max-height:120px;object-fit:cover;border:1px solid var(--border);border-radius:2px"/>
+            <span id="previewError" style="display:none;color:var(--aka);font-size:.75rem">
+              ⚠ 画像を読み込めませんでした / Could not load image
+            </span>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">バッジ / Badge</label>
+          <select name="badge" id="f_badge" class="form-control">
+            <option value="">なし / None</option>
+            <option value="recommend">おすすめ / Recommend</option>
+            <option value="seasonal">季節 / Seasonal</option>
+            <option value="popular">人気 / Popular</option>
+            <option value="new">NEW</option>
+            <option value="limited">限定 / Limited</option>
+          </select>
+        </div>
+        <div class="col-md-8 d-flex align-items-end gap-4 pb-1 flex-wrap">
+          <label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;cursor:pointer;color:var(--smoke)">
+            <input type="checkbox" name="is_available" id="f_available" checked style="accent-color:var(--aka)"/>
+            提供中 / Available
+          </label>
+          <label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;cursor:pointer;color:var(--smoke)">
+            <input type="checkbox" name="is_vegetarian" id="f_vegetarian" style="accent-color:var(--matcha)"/>
+            ベジタリアン / Vegetarian
+          </label>
+          <label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;cursor:pointer;color:var(--smoke)">
+            <input type="checkbox" name="is_gluten_free" id="f_gluten" style="accent-color:var(--matcha)"/>
+            グルテンフリー / Gluten Free
+          </label>
+        </div>
+      </div>
+      <div class="d-flex gap-3 mt-4">
+        <button type="submit" class="btn-submit" style="width:auto;padding:.8rem 2rem" id="menuSubmitBtn">
+          <i class="fa-solid fa-floppy-disk me-2"></i>
+          <span id="menuSubmitLabel">追加する / Add</span>
+        </button>
+        <button type="button" class="dash-cancel-btn" onclick="closeModal('menuModal')">
+          キャンセル / Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="deleteModal" class="modal-overlay" style="display:none">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-header">
+      <h3 class="modal-title">削除確認 / Confirm Delete</h3>
+      <button class="modal-close" onclick="closeModal('deleteModal')">✕</button>
+    </div>
+    <p style="font-size:.88rem;color:#5a4840;margin-bottom:1.5rem;line-height:1.8">
+      <strong id="deleteItemName"></strong> を削除しますか？<br>
+      <span style="color:var(--aka);font-size:.8rem">この操作は元に戻せません / This action cannot be undone.</span>
+    </p>
+    <div class="d-flex gap-3">
+      <button class="btn-submit" style="width:auto;padding:.7rem 1.5rem;background:var(--aka)" onclick="confirmDeleteItem()">
+        <i class="fa-solid fa-trash-can me-1"></i> 削除 / Delete
+      </button>
+      <button class="dash-cancel-btn" onclick="closeModal('deleteModal')">キャンセル / Cancel</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let deleteTargetPk = null;
+
+// ── Modal helpers ──
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = 'メニュー追加 / Add Menu Item';
+  document.getElementById('menuSubmitLabel').textContent = '追加する / Add';
+  document.getElementById('editItemId').value = '';
+  document.getElementById('menuForm').reset();
+  document.getElementById('f_available').checked = true;
+  document.getElementById('imagePreview').style.display = 'none';
+  document.getElementById('previewImg').src = '';
+  document.getElementById('previewError').style.display = 'none';
+  document.getElementById('fileUploadLabel').textContent = '画像を選択 / Choose Image';
+  clearErrors();
+  openModal('menuModal');
+}
+
+async function openEditModal(btn) {
+  const pk = btn.dataset.pk;
+  try {
+    console.log('Opening edit modal for pk:', pk);
+    const res  = await fetch(`/hanzen-admin/menu/${pk}/edit/`);
+    console.log('Response status:', res.status);
+    
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('Error response:', text);
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    
+    const data = await res.json();
+    console.log('Item data:', data);
+    
+    if (!data || data.error) {
+      throw new Error(data?.error || 'No data returned');
+    }
+    
+    document.getElementById('modalTitle').textContent = 'メニュー編集 / Edit Menu Item';
+    document.getElementById('menuSubmitLabel').textContent = '保存する / Save';
+    document.getElementById('editItemId').value = pk;
+    document.getElementById('f_category').value   = data.category || '';
+    document.getElementById('f_name_ja').value    = data.name_ja || '';
+    document.getElementById('f_name_en').value    = data.name_en || '';
+    document.getElementById('f_desc_ja').value    = data.description_ja || '';
+    document.getElementById('f_desc_en').value    = data.description_en || '';
+    document.getElementById('f_price').value      = data.price || '';
+    document.getElementById('f_image_url').value  = data.image_url || '';
+    document.getElementById('f_badge').value      = data.badge || '';
+    document.getElementById('f_order').value      = data.order || 0;
+    document.getElementById('f_available').checked  = data.is_available;
+    document.getElementById('f_vegetarian').checked = data.is_vegetarian;
+    document.getElementById('f_gluten').checked     = data.is_gluten_free;
+    
+    if (data.image_url) {
+      previewImage(data.image_url);
+    } else {
+      document.getElementById('imagePreview').style.display = 'none';
+    }
+    document.getElementById('fileUploadLabel').textContent = '画像を変更 / Change Image';
+    clearErrors();
+    openModal('menuModal');
+  } catch(e) {
+    console.error('Edit modal error:', e);
+    showToast('エラー / Error', 'Failed to load item data. Item may not exist.');
+  }
+}
+
+// ── Image preview ──
+function previewImage(url) {
+  const wrap = document.getElementById('imagePreview');
+  const img  = document.getElementById('previewImg');
+  const err  = document.getElementById('previewError');
+  if (!url) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  err.style.display  = 'none';
+  img.style.display  = 'block';
+  
+  // If the URL is relative, prepend the origin
+  if (url.startsWith('/')) {
+    img.src = window.location.origin + url;
+  } else {
+    img.src = url;
+  }
+  
+  img.onerror = () => { img.style.display = 'none'; err.style.display = 'block'; };
+  img.onload = () => { img.style.display = 'block'; err.style.display = 'none'; };
+}
+
+// ── File upload preview ──
+function handleFileSelect(input) {
+  const file = input.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('f_image_url').value = ''; // Clear URL field
+      previewImage(e.target.result);
+      document.getElementById('fileUploadLabel').textContent = file.name;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// ── Submit form ──
+async function submitMenuForm(e) {
+  e.preventDefault();
+  clearErrors();
+  const pk  = document.getElementById('editItemId').value;
+  const url = pk ? `/hanzen-admin/menu/${pk}/edit/` : `{% url 'restaurant:admin_menu_add' %}`;
+  const fd  = new FormData(e.target);
+  
+  // Handle checkboxes
+  ['is_available','is_vegetarian','is_gluten_free'].forEach(n => {
+    if (!fd.has(n)) fd.set(n, 'false');
+    else fd.set(n, document.getElementById('f_' + (n === 'is_available' ? 'available' : n === 'is_vegetarian' ? 'vegetarian' : 'gluten')).checked ? 'true' : 'false');
+  });
+
+  // Handle image file
+  const imageFile = document.getElementById('f_image_file').files[0];
+  if (imageFile) {
+    fd.set('image_file', imageFile);
+  }
+
+  const btn = document.getElementById('menuSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>処理中 / Processing...';
+
+  try {
+    const res  = await fetch(url, {
+      method: 'POST',
+      headers: { 
+        'X-CSRFToken': window.CSRF_TOKEN, 
+        'X-Requested-With': 'XMLHttpRequest' 
+      },
+      body: fd,
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast('保存しました / Saved successfully', '');
+      closeModal('menuModal');
+      setTimeout(() => location.reload(), 600);
+    } else {
+      showErrors(data.errors || {});
+      showToast('エラーがあります / Validation errors', 'Please check the form');
+    }
+  } catch(err) {
+    showToast('エラー / Error', 'Something went wrong');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-2"></i><span id="menuSubmitLabel">保存する / Save</span>';
+  }
+}
+
+// ── Delete ──
+function deleteItem(btn) {
+  const pk = btn.dataset.pk;
+  const name = btn.dataset.name;
+  deleteTargetPk = pk;
+  document.getElementById('deleteItemName').textContent = name;
+  openModal('deleteModal');
+}
+
+async function confirmDeleteItem() {
+  try {
+    const res  = await fetch(`/hanzen-admin/menu/${deleteTargetPk}/delete/`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json', 
+        'X-CSRFToken': window.CSRF_TOKEN, 
+        'X-Requested-With': 'XMLHttpRequest' 
+      },
+      body: '{}',
+    });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('item-row-' + deleteTargetPk)?.remove();
+      closeModal('deleteModal');
+      showToast('削除しました / Deleted', '');
+    }
+  } catch(e) {
+    showToast('エラー / Error', 'Failed to delete');
+  }
+}
+
+// ── Toggle availability ──
+async function toggleItem(btn) {
+  const pk = btn.dataset.pk;
+  try {
+    const url = `/hanzen-admin/menu/${pk}/toggle/`;
+    
+    const res = await fetch(url, {
+      method: 'POST', 
+      headers: { 
+        'X-CSRFToken': window.CSRF_TOKEN,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+    });
+    
+    if (!res.ok) {
+      console.error('Toggle failed with status:', res.status);
+      throw new Error(`HTTP ${res.status}`);
+    }
+    
+    const data = await res.json();
+    
+    if (data.ok) {
+      const badge = document.getElementById('avail-' + pk);
+      const icon  = document.getElementById('toggle-icon-' + pk);
+      const lbl   = document.getElementById('toggle-lbl-' + pk);
+      
+      if (badge && icon && lbl) {
+        if (data.is_available) {
+          badge.textContent = '提供中 / Available';
+          badge.className = 'avail-toggle avail-on';
+          icon.className = 'fa-solid fa-toggle-on'; 
+          lbl.textContent = '停止 / Stop';
+        } else {
+          badge.textContent = '停止中 / Unavailable';
+          badge.className = 'avail-toggle avail-off';
+          icon.className = 'fa-solid fa-toggle-off'; 
+          lbl.textContent = '再開 / Resume';
+        }
+        showToast('メニューを更新しました / Updated', '');
+      }
+    }
+  } catch(e) {
+    console.error('Toggle error:', e);
+    showToast('エラー / Error', 'Failed to toggle');
+  }
+}
+
+// ── Error handling ──
+function clearErrors() {
+  document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+}
+
+function showErrors(errors) {
+  // Handle nested errors (from Django form)
+  const errorMap = {};
+  
+  if (typeof errors === 'object') {
+    Object.entries(errors).forEach(([field, msgs]) => {
+      const msg = Array.isArray(msgs) ? msgs[0] : msgs;
+      errorMap[field] = msg;
+    });
+  }
+  
+  // Map form field names to error element IDs
+  const fieldMap = {
+    'name_ja': 'err_name_ja',
+    'name_en': 'err_name_en',
+    'price': 'err_price',
+    'category': 'err_category',
+  };
+  
+  Object.entries(errorMap).forEach(([field, msg]) => {
+    const elId = fieldMap[field];
+    if (elId) {
+      const el = document.getElementById(elId);
+      if (el) el.textContent = msg;
+    }
+  });
+  
+  // Show general errors in toast
+  if (errorMap['__all__']) {
+    showToast(errorMap['__all__'], '');
+  }
+}
+</script>
+{% endblock %}

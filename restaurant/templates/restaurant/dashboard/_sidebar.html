@@ -1,0 +1,42 @@
+<aside class="dash-sidebar">
+  <div class="dash-sidebar-top">
+    <div class="dash-avatar">{{ user.first_name|first|default:user.username|first|upper }}</div>
+    <div class="dash-user-name">{{ user.get_full_name|default:user.username }}</div>
+    <div class="dash-user-email">{{ user.email }}</div>
+  </div>
+  <nav class="dash-nav">
+    <a href="{% url 'restaurant:dashboard' %}" class="dash-nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="fa-solid fa-gauge-high"></i>
+      <span class="txt" data-ja="ダッシュボード" data-en="Dashboard">ダッシュボード</span>
+    </a>
+    <a href="{% url 'restaurant:dashboard_profile' %}" class="dash-nav-link {% if request.resolver_match.url_name == 'dashboard_profile' %}active{% endif %}">
+      <i class="fa-solid fa-user"></i>
+      <span class="txt" data-ja="プロフィール" data-en="Profile">プロフィール</span>
+    </a>
+    <a href="{% url 'restaurant:dashboard_reservations' %}" class="dash-nav-link {% if request.resolver_match.url_name == 'dashboard_reservations' %}active{% endif %}">
+      <i class="fa-solid fa-calendar-check"></i>
+      <span class="txt" data-ja="予約履歴" data-en="Reservations">予約履歴</span>
+    </a>
+    <a href="{% url 'restaurant:dashboard_orders' %}" class="dash-nav-link {% if request.resolver_match.url_name == 'dashboard_orders' %}active{% endif %}">
+      <i class="fa-solid fa-bowl-rice"></i>
+      <span class="txt" data-ja="注文履歴" data-en="Order History">注文履歴</span>
+    </a>
+    <a href="{% url 'restaurant:reservation' %}" class="dash-nav-link">
+      <i class="fa-solid fa-plus"></i>
+      <span class="txt" data-ja="新規予約" data-en="New Reservation">新規予約</span>
+    </a>
+    {% if user.is_staff %}
+    <div class="dash-nav-divider"></div>
+    <a href="{% url 'restaurant:admin_dashboard' %}" class="dash-nav-link dash-nav-admin">
+      <i class="fa-solid fa-shield-halved"></i>
+      <span class="txt" data-ja="管理画面" data-en="Admin Panel">管理画面</span>
+    </a>
+    {% endif %}
+    <div class="dash-nav-divider"></div>
+    <a href="#" class="dash-nav-link dash-nav-logout" onclick="confirmLogout(event)">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      <span class="txt" data-ja="ログアウト" data-en="Logout">ログアウト</span>
+    </a>
+    <form id="logoutForm" method="post" action="{% url 'restaurant:logout' %}" style="display:none">{% csrf_token %}</form>
+  </nav>
+</aside>

@@ -1,0 +1,175 @@
+{% extends "restaurant/base.html" %}
+{% block title %}メルマガ管理 / Newsletter — 花膳 Admin{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include "restaurant/admin_dashboard/_sidebar.html" %}
+  <div class="dash-main">
+
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">
+          メルマガ管理
+          <span style="font-size:.55em;color:var(--smoke);font-family:var(--font-en);font-style:italic"> Newsletter Subscribers</span>
+        </h1>
+        <p class="dash-subtitle">{{ subscribers.count }} 件の購読者 / {{ subscribers.count }} subscribers</p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="d-flex gap-2 flex-wrap mb-3">
+      <a href="?" class="admin-filter-btn {% if not request.GET.status %}active{% endif %}">全て / All</a>
+      <a href="?status=active" class="admin-filter-btn {% if request.GET.status == 'active' %}active{% endif %}">有効 / Active</a>
+      <a href="?status=inactive" class="admin-filter-btn {% if request.GET.status == 'inactive' %}active{% endif %}">無効 / Inactive</a>
+    </div>
+
+    <!-- Search -->
+    <div class="d-flex gap-3 mb-3 align-items-center">
+      <form method="get" class="d-flex gap-2" style="flex:1;max-width:400px">
+        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="メールアドレスで検索 / Search by email" 
+               class="form-control" style="font-size:.85rem"/>
+        <button type="submit" class="btn-submit" style="padding:.5rem 1rem;font-size:.8rem">
+          <i class="fa-solid fa-search"></i>
+        </button>
+      </form>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <h3 class="admin-card-title">購読者一覧 <span class="admin-en-label">/ Subscriber List</span></h3>
+        <span style="font-size:.75rem;color:var(--smoke)">
+          有効: {{ subscribers.count }} 件 / {{ subscribers.count }} active
+        </span>
+      </div>
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th># <span class="admin-th-en">/ ID</span></th>
+              <th>メールアドレス <span class="admin-th-en">/ Email</span></th>
+              <th>状態 <span class="admin-th-en">/ Status</span></th>
+              <th>登録日 <span class="admin-th-en">/ Subscribed</span></th>
+              <th>操作 <span class="admin-th-en">/ Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sub in subscribers %}
+            <tr id="sub-row-{{ sub.pk }}">
+              <td style="color:var(--smoke);font-family:var(--font-en)">#{{ sub.pk }}</td>
+              <td>
+                <strong>{{ sub.email }}</strong>
+              </td>
+              <td>
+                <span class="avail-toggle {% if sub.is_active %}avail-on{% else %}avail-off{% endif %}" id="avail-{{ sub.pk }}">
+                  {% if sub.is_active %}有効 / Active{% else %}無効 / Inactive{% endif %}
+                </span>
+              </td>
+              <td style="font-size:.82rem;color:var(--smoke)">{{ sub.subscribed_at|date:"Y/m/d H:i" }}</td>
+              <td>
+                <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+                  <button class="admin-action-btn" onclick="toggleSubscriber({{ sub.pk }})">
+                    <i class="fa-solid fa-toggle-{% if sub.is_active %}on{% else %}off{% endif %}" id="toggle-icon-{{ sub.pk }}"></i>
+                    <span id="toggle-lbl-{{ sub.pk }}">{% if sub.is_active %}無効化 / Deactivate{% else %}有効化 / Activate{% endif %}</span>
+                  </button>
+                  <button class="admin-action-btn admin-del-action" onclick="deleteSubscriber({{ sub.pk }}, '{{ sub.email|escapejs }}')">
+                    <i class="fa-solid fa-trash-can"></i> 削除 / Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" style="text-align:center;padding:3rem;color:var(--smoke)">
+                <i class="fa-regular fa-envelope fa-2x mb-3" style="display:block;opacity:.25"></i>
+                購読者がいません / No subscribers yet
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="deleteModal" class="modal-overlay" style="display:none">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-header">
+      <h3 class="modal-title">削除確認 / Confirm Delete</h3>
+      <button class="modal-close" onclick="closeModal('deleteModal')">✕</button>
+    </div>
+    <p style="font-size:.88rem;color:#5a4840;margin-bottom:1.5rem;line-height:1.8">
+      <strong id="deleteItemName"></strong> を削除しますか？<br>
+      <span style="color:var(--aka);font-size:.8rem">この操作は元に戻せません / This action cannot be undone.</span>
+    </p>
+    <div class="d-flex gap-3">
+      <button class="btn-submit" style="width:auto;padding:.7rem 1.5rem;background:var(--aka)" onclick="confirmDeleteSubscriber()">
+        <i class="fa-solid fa-trash-can me-1"></i> 削除 / Delete
+      </button>
+      <button class="dash-cancel-btn" onclick="closeModal('deleteModal')">キャンセル / Cancel</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let deleteTargetPk = null;
+
+async function toggleSubscriber(pk) {
+  try {
+    const res = await fetch(`/hanzen-admin/newsletter/${pk}/toggle/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.CSRF_TOKEN, 'X-Requested-With': 'XMLHttpRequest' },
+      body: '{}',
+    });
+    const data = await res.json();
+    if (data.ok) {
+      const badge = document.getElementById('avail-' + pk);
+      const icon  = document.getElementById('toggle-icon-' + pk);
+      const lbl   = document.getElementById('toggle-lbl-' + pk);
+      if (data.is_active) {
+        badge.textContent = '有効 / Active';
+        badge.className = 'avail-toggle avail-on';
+        icon.className = 'fa-solid fa-toggle-on';
+        lbl.textContent = '無効化 / Deactivate';
+      } else {
+        badge.textContent = '無効 / Inactive';
+        badge.className = 'avail-toggle avail-off';
+        icon.className = 'fa-solid fa-toggle-off';
+        lbl.textContent = '有効化 / Activate';
+      }
+      showToast('更新しました / Updated', '');
+    }
+  } catch(e) {
+    showToast('エラー / Error', 'Failed to toggle');
+  }
+}
+
+function deleteSubscriber(pk, email) {
+  deleteTargetPk = pk;
+  document.getElementById('deleteItemName').textContent = email;
+  openModal('deleteModal');
+}
+
+async function confirmDeleteSubscriber() {
+  try {
+    const res = await fetch(`/hanzen-admin/newsletter/${deleteTargetPk}/delete/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.CSRF_TOKEN, 'X-Requested-With': 'XMLHttpRequest' },
+      body: '{}',
+    });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('sub-row-' + deleteTargetPk)?.remove();
+      closeModal('deleteModal');
+      showToast('削除しました / Deleted', '');
+    }
+  } catch(e) {
+    showToast('エラー / Error', 'Failed to delete');
+  }
+}
+</script>
+{% endblock %}

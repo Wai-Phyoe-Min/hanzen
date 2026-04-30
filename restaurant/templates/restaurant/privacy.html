@@ -1,0 +1,196 @@
+{% extends "restaurant/base.html" %}
+{% load i18n %}
+{% block title %}プライバシーポリシー / Privacy Policy — 花膳{% endblock %}
+{% block content %}
+
+<div class="page-hero">
+  <div class="page-hero-bg" style="background-image:url('/media/site_images/privacy_img.jpg')"></div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-content fade-in">
+    <span class="section-tag txt" style="color:var(--aka)" data-ja="法的情報" data-en="Legal">法的情報</span>
+    <h1 class="page-hero-title">
+      <span class="txt" data-ja="プライバシーポリシー" data-en="Privacy Policy">プライバシーポリシー</span>
+    </h1>
+    <p class="page-hero-sub">
+      <span class="txt" data-ja="プライバシーポリシー" data-en="Privacy Policy">Privacy Policy</span>
+    </p>
+  </div>
+</div>
+
+<section style="background:var(--shiro);padding:5rem 0">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+
+        <!-- Language switcher for this page -->
+        <div class="legal-lang-tabs fade-in">
+          <button class="legal-tab active" onclick="showLang('ja', this)">日本語</button>
+          <button class="legal-tab" onclick="showLang('en', this)">English</button>
+        </div>
+
+        <!-- JAPANESE -->
+        <div class="legal-body fade-in" id="legal-ja">
+          <p class="legal-updated">最終更新日：2024年1月1日</p>
+
+          <p class="legal-intro">花膳（以下「当店」）は、お客様の個人情報の取り扱いについて、以下のとおりプライバシーポリシーを定めます。</p>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第1条（収集する情報）</h2>
+            <p>当店は、以下の情報をお客様からお預かりする場合があります。</p>
+            <ul class="legal-list">
+              <li>氏名・フリガナ</li>
+              <li>メールアドレス</li>
+              <li>電話番号</li>
+              <li>ご予約日時・人数・コース</li>
+              <li>食物アレルギー・食事制限に関する情報</li>
+              <li>誕生日（任意）</li>
+              <li>ウェブサイト閲覧履歴・Cookie情報</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第2条（利用目的）</h2>
+            <p>収集した個人情報は、以下の目的に限り使用いたします。</p>
+            <ul class="legal-list">
+              <li>ご予約の確認・管理・連絡</li>
+              <li>メールマガジン・季節のご案内の送付（同意いただいた場合のみ）</li>
+              <li>サービスの改善・新メニューの開発</li>
+              <li>お問い合わせへの回答</li>
+              <li>法令に基づく対応</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第3条（第三者への提供）</h2>
+            <p>当店は、以下のいずれかに該当する場合を除き、お客様の個人情報を第三者に提供することはありません。</p>
+            <ul class="legal-list">
+              <li>お客様の同意がある場合</li>
+              <li>法令に基づく場合</li>
+              <li>人の生命・身体・財産の保護のために必要な場合</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第4条（Cookie の使用）</h2>
+            <p>当ウェブサイトでは、サービス向上のためにCookieを使用しております。ブラウザの設定でCookieを無効にすることができますが、一部のサービスが正常に動作しない場合があります。</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第5条（情報の保管・セキュリティ）</h2>
+            <p>当店は、お客様の個人情報を適切な安全管理措置のもとで保管し、不正アクセス・紛失・漏えい等の防止に努めます。個人情報の保管期間は、利用目的が達成されるまでの期間、または法令で定める期間とします。</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第6条（開示・訂正・削除）</h2>
+            <p>お客様は、当店が保有するご自身の個人情報について、開示・訂正・削除を求める権利を有します。ご希望の場合は、下記お問い合わせ窓口までご連絡ください。本人確認を行ったうえで、合理的な期間内に対応いたします。</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第7条（ポリシーの改定）</h2>
+            <p>当店は、必要に応じて本プライバシーポリシーを改定することがあります。改定後のポリシーは、当ウェブサイト上に掲載した時点から効力を生じるものとします。</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">第8条（お問い合わせ）</h2>
+            <p>本プライバシーポリシーに関するお問い合わせは、下記までご連絡ください。</p>
+            <div class="legal-contact-box">
+              <p><strong>花膳 HANZEN</strong></p>
+              <p>〒104-0061 東京都中央区銀座6-10-1</p>
+              <p>TEL: <a href="tel:03-1234-5678">03-1234-5678</a></p>
+              <p>Email: <a href="mailto:info@hanzen.jp">info@hanzen.jp</a></p>
+              <p>受付時間: 月〜土 10:00〜20:00（日曜・祝日除く）</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ENGLISH -->
+        <div class="legal-body fade-in" id="legal-en" style="display:none">
+          <p class="legal-updated">Last Updated: January 1, 2024</p>
+
+          <p class="legal-intro">Hanzen ("we", "our", or "the restaurant") has established the following Privacy Policy regarding the handling of personal information provided by our guests.</p>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 1 — Information We Collect</h2>
+            <p>We may collect the following information from our guests:</p>
+            <ul class="legal-list">
+              <li>Full name</li>
+              <li>Email address</li>
+              <li>Phone number</li>
+              <li>Reservation date, time, party size, and course selection</li>
+              <li>Food allergies and dietary restrictions</li>
+              <li>Date of birth (optional)</li>
+              <li>Website browsing history and Cookie data</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 2 — Purpose of Use</h2>
+            <p>Collected personal information will be used solely for the following purposes:</p>
+            <ul class="legal-list">
+              <li>Confirming, managing, and communicating about reservations</li>
+              <li>Sending newsletters and seasonal announcements (only with consent)</li>
+              <li>Improving our services and developing new menu items</li>
+              <li>Responding to inquiries</li>
+              <li>Compliance with applicable laws and regulations</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 3 — Sharing with Third Parties</h2>
+            <p>We will not provide personal information to third parties except in the following cases:</p>
+            <ul class="legal-list">
+              <li>When the guest has given their consent</li>
+              <li>When required by law</li>
+              <li>When necessary to protect the life, body, or property of an individual</li>
+            </ul>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 4 — Use of Cookies</h2>
+            <p>Our website uses cookies to improve your experience. You may disable cookies in your browser settings, however some features of the site may not function correctly as a result.</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 5 — Data Storage & Security</h2>
+            <p>We store personal information under appropriate security measures, and take every precaution to prevent unauthorized access, loss, or leakage. Data is retained for as long as necessary to fulfil the stated purpose, or as required by applicable law.</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 6 — Access, Correction & Deletion</h2>
+            <p>Guests have the right to request disclosure, correction, or deletion of their personal information held by us. Please contact us at the address below. We will verify your identity and respond within a reasonable timeframe.</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 7 — Policy Revisions</h2>
+            <p>We may revise this Privacy Policy as necessary. Revised policies take effect from the moment they are posted on this website.</p>
+          </div>
+
+          <div class="legal-section">
+            <h2 class="legal-h2">Article 8 — Contact</h2>
+            <p>For any inquiries regarding this Privacy Policy, please contact us at:</p>
+            <div class="legal-contact-box">
+              <p><strong>花膳 HANZEN</strong></p>
+              <p>6-10-1 Ginza, Chuo-ku, Tokyo 104-0061, Japan</p>
+              <p>TEL: <a href="tel:03-1234-5678">03-1234-5678</a></p>
+              <p>Email: <a href="mailto:info@hanzen.jp">info@hanzen.jp</a></p>
+              <p>Hours: Mon–Sat 10:00–20:00 (excluding Sundays & holidays)</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showLang(lang, btn) {
+  document.getElementById('legal-ja').style.display = lang === 'ja' ? '' : 'none';
+  document.getElementById('legal-en').style.display = lang === 'en' ? '' : 'none';
+  document.querySelectorAll('.legal-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
+{% endblock %}

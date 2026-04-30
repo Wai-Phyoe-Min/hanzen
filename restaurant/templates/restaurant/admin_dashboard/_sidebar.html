@@ -1,0 +1,78 @@
+<aside class="dash-sidebar admin-sidebar">
+  <div class="dash-sidebar-top" style="background:var(--aka-dark)">
+    <div class="dash-avatar" style="background:var(--aka);color:#fff;font-size:1.1rem">
+      <i class="fa-solid fa-shield-halved"></i>
+    </div>
+    <div class="dash-user-name" style="color:#fff">管理画面 / Admin</div>
+    <div class="dash-user-email" style="color:rgba(255,255,255,.5)">{{ user.username }}</div>
+  </div>
+  <nav class="dash-nav">
+    <a href="{% url 'restaurant:admin_dashboard' %}" class="dash-nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+      <i class="fa-solid fa-gauge-high"></i>
+      <span>ダッシュボード <span class="dash-nav-en">/ Dashboard</span></span>
+    </a>
+    <a href="{% url 'restaurant:admin_reservations' %}" class="dash-nav-link {% if 'admin_reservations' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-calendar-check"></i>
+      <span>予約管理 <span class="dash-nav-en">/ Reservations</span></span>
+    </a>
+    <a href="{% url 'restaurant:admin_menu' %}" class="dash-nav-link {% if 'admin_menu' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-utensils"></i>
+      <span>メニュー管理 <span class="dash-nav-en">/ Menu</span></span>
+    </a>
+    <a href="{% url 'restaurant:admin_courses' %}" class="dash-nav-link {% if 'admin_courses' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-clipboard-list"></i>
+      <span>コース管理 <span class="dash-nav-en">/ Courses</span></span>
+    </a>
+    <a href="{% url 'restaurant:admin_users' %}" class="dash-nav-link {% if 'admin_users' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-users"></i>
+      <span>会員管理 <span class="dash-nav-en">/ Users</span></span>
+    </a>
+    <a href="{% url 'restaurant:admin_gallery' %}" class="dash-nav-link {% if 'admin_gallery' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-images"></i>
+      <span>ギャラリー <span class="dash-nav-en">/ Gallery</span></span>
+    </a>
+    <a href="{% url 'restaurant:admin_orders' %}" class="dash-nav-link {% if 'admin_orders' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-shopping-cart"></i>
+      <span>注文管理 <span class="dash-nav-en">/ Orders</span></span>
+    </a>
+    <a href="{% url 'restaurant:admin_contact' %}" class="dash-nav-link {% if 'admin_contact' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-envelope"></i>
+      <span>お問い合わせ <span class="dash-nav-en">/ Contact</span></span>
+    </a>
+    <a href="{% url 'restaurant:admin_newsletter' %}" class="dash-nav-link {% if 'admin_newsletter' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-newspaper"></i>
+      <span>メルマガ管理 <span class="dash-nav-en">/ Newsletter</span></span>
+    </a>
+    <a href="{% url 'restaurant:admin_business_hours' %}" class="dash-nav-link {% if 'admin_business_hours' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-clock"></i>
+      <span>営業時間 <span class="dash-nav-en">/ Hours</span></span>
+    </a>
+    <a href="{% url 'restaurant:admin_settings' %}" class="dash-nav-link {% if 'admin_settings' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-gear"></i>
+      <span>サイト設定 <span class="dash-nav-en">/ Settings</span></span>
+    </a>
+    <div class="dash-nav-divider"></div>
+    <a href="{% url 'restaurant:admin_profile' %}" class="dash-nav-link {% if 'admin_profile' in request.resolver_match.url_name or 'admin_change_password' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-user-gear"></i>
+      <span>管理者設定 <span class="dash-nav-en">/ Admin Settings</span></span>
+    </a>
+    <a href="{% url 'restaurant:home' %}" class="dash-nav-link" target="_blank">
+      <i class="fa-solid fa-globe"></i>
+      <span>サイトを見る <span class="dash-nav-en">/ View Site</span></span>
+    </a>
+    <a href="{% url 'restaurant:dashboard' %}" class="dash-nav-link">
+      <i class="fa-solid fa-user"></i>
+      <span>マイページ <span class="dash-nav-en">/ My Page</span></span>
+    </a>
+    <a href="/admin/" class="dash-nav-link" target="_blank">
+      <i class="fa-solid fa-screwdriver-wrench"></i>
+      <span>Django Admin</span>
+    </a>
+    <div class="dash-nav-divider"></div>
+    <a href="#" class="dash-nav-link dash-nav-logout" onclick="confirmLogout(event)">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      <span>ログアウト <span class="dash-nav-en">/ Logout</span></span>
+    </a>
+    <form id="logoutForm" method="post" action="{% url 'restaurant:logout' %}" style="display:none">{% csrf_token %}</form>
+  </nav>
+</aside>
